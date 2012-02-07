@@ -79,6 +79,8 @@ var BankersBox = (function() {
       ls_set(k, v);
     } else if (t === "list") {
       ls_set(k, JSON.stringify(v));
+    } else if (t === "set") {
+      ls_set(k, JSON.stringify(v));
     }
   };
 
@@ -146,6 +148,7 @@ var BankersBox = (function() {
     tmap["lindex"] = "list";
     tmap["lrange"] = "list";
     tmap["lset"] = "list";
+    tmap["ltrim"] = "list";
     tmap["sadd"] = "set";
 
     if (keytype === undefined || keytype === null || tmap[checktype] === undefined || tmap[checktype] == keytype) {
@@ -319,7 +322,7 @@ var BankersBox = (function() {
     if (val === null) {
       return [];
     }
-    if (end == -1) {
+    if (end === -1) {
       return val.slice(start);
     }
     return val.slice(start, end + 1);
@@ -338,6 +341,21 @@ var BankersBox = (function() {
       throw(new BBException("index out of range"));
     }
     val[i] = v;
+    this.set_bbkey(k, val, "list");
+    return true;
+  };
+
+  BB.prototype.ltrim = function(k, start, end) {
+    this.validate_key(k, "ltrim");
+    var val = this.get_bbkey(k, "list");
+    if (val === null) {
+      return true;
+    }
+    if (end === -1) {
+      val = val.slice(start);
+    } else {
+      val = val.slice(start, end + 1);
+    }
     this.set_bbkey(k, val, "list");
     return true;
   };
@@ -397,6 +415,18 @@ var BankersBox = (function() {
   
   BB.prototype.sadd = function(k, v) {
     this.validate_key(k, "sadd");
+    var val = this.get_bbkey(k, "set");
+    var scard;
+    if (val === null) {
+      val = {};
+      scard = 0;
+    } else {
+      scard = this.get_bbkeymeta(k, "card");
+    }
+    val[v] = 1;
+    this.set_bbkey(k, val, "set");
+    this.set_bbkeymeta(k, "card", scard + 1);
+    /* TODO: maintain members variable and ret count */
   };
 
   BB.toString = function() {
