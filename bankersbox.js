@@ -8,7 +8,7 @@ var BBException = function(msg) {
 var BBKeyException = function(msg) {
   BBException.call(this, msg);
   this.type = "BBKeyException";
-}
+};
 
 var BankersBox = (function() {
   
@@ -329,7 +329,7 @@ var BankersBox = (function() {
     this.validate_key(k, "lset");
     var val = this.get_bbkey(k, "list");
     if (val === null) {
-      throw(new BBException("no such key"));
+      throw(new BBKeyException("no such key"));
     }
     if (i < 0) {
       i = val.length + i;
@@ -390,13 +390,17 @@ var BankersBox = (function() {
     var val = this.rpop(src);
     this.lpush(dest, val);
     return val;
-  }
+  };
 
 
   /* ---- SET ---- */
   
   BB.prototype.sadd = function(k, v) {
     this.validate_key(k, "sadd");
+  };
+
+  BB.toString = function() {
+    return "[object BankersBox]";
   };
 
   return BB;
