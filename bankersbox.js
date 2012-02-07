@@ -11,6 +11,13 @@ var BBKeyException = function(msg) {
 };
 
 var BankersBox = (function() {
+
+// Array Remove - By John Resig (MIT Licensed)
+  var arr_remove = function(array, from, to) {
+    var rest = array.slice((to || from) + 1 || array.length);
+    array.length = from < 0 ? array.length + from : from;
+    return array.push.apply(array, rest);
+  };
   
   var _log = function(m) {
     if (window.console && window.console.log) {
@@ -62,7 +69,7 @@ var BankersBox = (function() {
 
   BB.prototype.get_raw = function(k, t) {
     var ret = this.store[k];
-    if (ret) {
+    if (ret !== undefined) {
       return ret;
     }
     if (t === undefined) {
@@ -147,9 +154,17 @@ var BankersBox = (function() {
     tmap["llen"] = "list";
     tmap["lindex"] = "list";
     tmap["lrange"] = "list";
+    tmap["lrem"] = "list";
     tmap["lset"] = "list";
     tmap["ltrim"] = "list";
     tmap["sadd"] = "set";
+    tmap["scard"] = "set";
+    tmap["sismember"] = "set";
+    tmap["smembers"] = "set";
+    tmap["srem"] = "set";
+    tmap["smove"] = "set";
+    tmap["spop"] = "set";
+    tmap["srandmember"] = "set";
 
     if (keytype === undefined || keytype === null || tmap[checktype] === undefined || tmap[checktype] == keytype) {
       return true;
@@ -328,6 +343,37 @@ var BankersBox = (function() {
     return val.slice(start, end + 1);
   };
 
+  BB.prototype.lrem = function(k, count, v) {
+    this.validate_key(k, "lrem");
+    var val = this.get_bbkey(k, "list");
+    if (val === null) {
+      return 0;
+    }
+    var ret = 0;
+    var to_remove = [];
+    for (var i = 0; i < val.length; i++) {
+      if (val[i] == v) {
+        to_remove.push(i);
+        ret++;
+      }
+    }
+    
+    if (count > 0) {
+      to_remove = to_remove.slice(0, count);
+    } else if (count < 0) {
+      to_remove = to_remove.slice(count);
+    }
+    
+    while(to_remove.length) {
+      var i = to_remove.pop();
+      arr_remove(val, i);
+    }
+
+    this.set_bbkey(k, val, "list");
+    return Math.min(ret, Math.abs(count));
+
+  };
+
   BB.prototype.lset = function(k, i, v) {
     this.validate_key(k, "lset");
     var val = this.get_bbkey(k, "list");
@@ -417,16 +463,118 @@ var BankersBox = (function() {
     this.validate_key(k, "sadd");
     var val = this.get_bbkey(k, "set");
     var scard;
+    var ret = 0;
     if (val === null) {
       val = {};
       scard = 0;
     } else {
-      scard = this.get_bbkeymeta(k, "card");
+      scard = parseInt(this.get_bbkeymeta(k, "card"));
+    }
+    if (val[v] !== 1) {
+      ret = 1;
+      scard = scard + 1;
     }
     val[v] = 1;
     this.set_bbkey(k, val, "set");
-    this.set_bbkeymeta(k, "card", scard + 1);
-    /* TODO: maintain members variable and ret count */
+    this.set_bbkeymeta(k, "card", scard);
+    return ret;
+  };
+
+  BB.prototype.scard = function(k) {
+    this.validate_key(k, "scard");
+    if (this.exists(k)) {
+      return parseInt(this.get_bbkeymeta(k, "card"));
+    };
+    return 0;
+  };
+
+  BB.prototype.sismember = function(k, v) {
+    this.validate_key(k, "sismember");
+    var val = this.get_bbkey(k, "set");
+    if (val === null) {
+      return false;
+    }
+    if (val[v] === 1) {
+      return true;
+    }
+    return false;
+  };
+
+  BB.prototype.smembers = function(k) {
+    this.validate_key(k, "smembers");
+    var val = this.get_bbkey(k, "set");
+    if (val === null) {
+      return [];
+    }
+    var ret = [];
+    for (var v in val) {
+      if (val.hasOwnProperty(v)) {
+        ret.push(v);
+      }
+    }
+    return ret;
+  };
+
+  BB.prototype.smove = function(src, dest, v) {
+    this.validate_key(src, "smove");
+    this.validate_key(dest, "smove");
+    var srcval = this.get_bbkey(src, "set");
+    if (srcval === null) {
+      return 0;
+    }
+    var ret = this.srem(src, v);
+    if (ret) {
+      this.sadd(dest, v);
+    }
+    return ret;
+  };
+
+  BB.prototype.spop = function(k) {
+    this.validate_key(k, "spop");
+    var member = this.srandmember(k);
+    if (member !== null) {
+      this.srem(k, member);
+    }
+    return member;
+  };
+
+  BB.prototype.srandmember = function(k) {
+    this.validate_key(k, "srandmember");
+    var val = this.get_bbkey(k, "set");
+    if (val === null) {
+      return null;
+    }
+    var members = this.smembers(k);
+    if (members.length === 0) {
+      return null;
+    }
+    var i = Math.floor(Math.random() * members.length);
+    var ret = members[i];
+    return ret;
+  };
+
+  BB.prototype.srem = function(k, v) {
+    this.validate_key(k, "srem");
+    var val = this.get_bbkey(k, "set");
+    if (val === null) {
+      return 0;
+    }
+    var ret = 0;
+    if (val[v] === 1) {
+      ret = 1;
+      delete val[v];
+      var scard = parseInt(this.get_bbkeymeta(k, "card")) - 1;
+      this.set_bbkey(k, val, "set");
+      this.set_bbkeymeta(k, "card", scard);
+    }
+    return ret;
+  };
+
+  /* ---- SERVER ---- */
+  
+  BB.prototype.select = function(i) {
+    this.db = i;
+    this.prefix = "bb:" + i.toString() + ":";
   };
 
   BB.toString = function() {
