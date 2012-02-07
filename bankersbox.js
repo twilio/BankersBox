@@ -1,13 +1,13 @@
-var BBException = function(msg) {
-  this.type = "BBException";
+var BankersBoxException = function(msg) {
+  this.type = "BankersBoxException";
   this.toString = function() {
     return this.type + ": " + msg.toString();
   };
 };
 
-var BBKeyException = function(msg) {
-  BBException.call(this, msg);
-  this.type = "BBKeyException";
+var BankersBoxKeyException = function(msg) {
+  BankersBoxException.call(this, msg);
+  this.type = "BankersBoxKeyException";
 };
 
 var BankersBox = (function() {
@@ -52,6 +52,11 @@ var BankersBox = (function() {
   };
 
   var BB = function(db) {
+
+    if (isNaN(parseInt(db))) {
+      throw(new BankersBoxException("db index must be an integer"));
+    }
+    db = parseInt(db);
     
     this.db = db;
     this.prefix = "bb:" + db.toString() + ":";
@@ -169,7 +174,7 @@ var BankersBox = (function() {
     if (keytype === undefined || keytype === null || tmap[checktype] === undefined || tmap[checktype] == keytype) {
       return true;
     }
-    throw(new BBKeyException("invalid operation on key type: " + keytype));
+    throw(new BankersBoxKeyException("invalid operation on key type: " + keytype));
   };
 
   /* ---- KEY ---- */
@@ -237,7 +242,7 @@ var BankersBox = (function() {
     var val = this.get(k);
     if (val !== null) {
       if (isNaN(parseInt(val))) {
-        throw(new BBKeyException("key is not parsable as an integer"));
+        throw(new BankersBoxKeyException("key is not parsable as an integer"));
       }
       this.set(k, val + i);
       return val + i;
@@ -378,13 +383,13 @@ var BankersBox = (function() {
     this.validate_key(k, "lset");
     var val = this.get_bbkey(k, "list");
     if (val === null) {
-      throw(new BBKeyException("no such key"));
+      throw(new BankersBoxKeyException("no such key"));
     }
     if (i < 0) {
       i = val.length + i;
     }
     if (i < 0 || i >= val.length) {
-      throw(new BBException("index out of range"));
+      throw(new BankersBoxException("index out of range"));
     }
     val[i] = v;
     this.set_bbkey(k, val, "list");

@@ -36,7 +36,7 @@ Functions that are missing which might prove useful. All expiry-based functions 
 * [LISTS](http://redis.io/commands#list)
   * blpop, brpop, brpoplpush (seem unnecessary as js is single-threaded?)
   * linsert
-* [SETS](http://redis.io/commands#set
+* [SETS](http://redis.io/commands#set)
   * sdiff
   * sdiffstore
   * sinter
