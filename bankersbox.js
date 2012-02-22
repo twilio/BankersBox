@@ -28,7 +28,7 @@ var BankersBox = (function() {
   var ls_set = function(k, v) {
     if (window.localStorage) {
       try {
-        localStorage.setItem(k, v);
+        window.localStorage.setItem(k, v);
       } catch (e) {
         if (e == QUOTA_EXCEEDED_ERR) {
           _log("quota exceeded!");
