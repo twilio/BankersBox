@@ -77,7 +77,7 @@ var BankersBox = (function() {
     if (ret !== undefined) {
       return ret;
     }
-    if (t === undefined) {
+    if (t === undefined || t === "string") {
       ret = this.store[k] = ls_get(k);
     } else {
       ret = this.store[k] = JSON.parse(ls_get(k));
@@ -87,7 +87,7 @@ var BankersBox = (function() {
 
   BB.prototype.set_raw = function(k, v, t) {
     this.store[k] = v;
-    if (t === undefined) {
+    if (t === undefined || t === "string") {
       ls_set(k, v);
     } else if (t === "list") {
       ls_set(k, JSON.stringify(v));

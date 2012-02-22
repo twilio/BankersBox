@@ -37,7 +37,7 @@ their separate values.
 var bb = new BankersBox(1);
 
 bb.set("foo", "bar");
-bb.get("foo"); # returns "bar"
+bb.get("foo"); // returns "bar"
 
 bb.set("count", 10);
 bb.incr("count"); // sets "count" to 11, returns 11
@@ -129,7 +129,7 @@ Values stored in sets should be primitive values. When storing arrays or objects
 ## Implementation Notes
 
 BankersBox uses an internal write-through cache object for quick
-reads. This mean, however, that if the cache is cold (e.g. after a
+reads. This means, however, that if the cache is cold (e.g. after a
 page refresh), BankersBox will go to localStorage to fill the
 cache. Since localStorage stores all values as strings, cold cache
 values for primitive types will be filled with strings. If you are
