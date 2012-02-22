@@ -72,6 +72,11 @@ var BankersBox = (function() {
 
   };
 
+  BB.prototype.exists_raw = function(k) {
+    var ret = this.store[k] || ls_get(k);
+    return ret ? true : false;
+  }
+
   BB.prototype.get_raw = function(k, t) {
     var ret = this.store[k];
     if (ret !== undefined) {
@@ -107,6 +112,10 @@ var BankersBox = (function() {
       this.set_bbkeytype(k, t);
     }
   };
+
+  BB.prototype.exists_bbkey = function(k) {
+    return this.exists_raw(this.prefix + k);
+  }
 
   BB.prototype.get_bbkey = function(k, t) {
     return this.get_raw(this.prefix + k, t);
@@ -189,11 +198,7 @@ var BankersBox = (function() {
   };
 
   BB.prototype.exists = function(k) {
-    var val = this.get_bbkey(k);
-    if (val !== null) {
-      return true;
-    }
-    return false;
+    return this.exists_bbkey(k);
   };
 
   BB.prototype.type = function(k) {
