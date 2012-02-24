@@ -10,7 +10,11 @@ var BankersBoxKeyException = function(msg) {
   this.type = "BankersBoxKeyException";
 };
 
-var BankersBox = (function() {
+(function(ctx) {
+
+  if (typeof(window) === 'undefined') {
+    window = {}
+  }
 
 // Array Remove - By John Resig (MIT Licensed)
   var arr_remove = function(array, from, to) {
@@ -68,7 +72,7 @@ var BankersBox = (function() {
       return "bb:" + this.db.toString();
     };
 
-    if (!window.JSON || !window.JSON.parse || !window.JSON.stringify) {
+    if (typeof(JSON) == 'undefined' && !(window.JSON && window.JSON.parse && window.JSON.stringify)) {
       throw("No JSON support detected. Please include a JSON module with 'parse' and 'stringify' functions.");
     }
 
@@ -598,6 +602,7 @@ var BankersBox = (function() {
     return "[object BankersBox]";
   };
 
-  return BB;
+  //return BB;
+  ctx.BankersBox = BB;
   
-})();
+})(typeof(module) !== 'undefined' && module && module.exports ? module.exports : window);
