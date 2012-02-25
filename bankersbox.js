@@ -267,6 +267,7 @@ var BankersBoxKeyException = function(msg) {
       validate_key(k, "set");
       set_bbkey(k, v);
       set_bbkeytype(k, "string");
+      return "OK";
     };
 
     this.setnx = function(k, v) {
@@ -388,8 +389,11 @@ var BankersBoxKeyException = function(msg) {
       }
 
       set_bbkey(k, val, "list");
-      return Math.min(ret, Math.abs(count));
-
+      if (count == 0) {
+        return ret;
+      } else {
+        return Math.min(ret, Math.abs(count));
+      }
     };
 
     this.lset = function(k, i, v) {
@@ -406,14 +410,14 @@ var BankersBoxKeyException = function(msg) {
       }
       val[i] = v;
       set_bbkey(k, val, "list");
-      return true;
+      return "OK";
     };
 
     this.ltrim = function(k, start, end) {
       validate_key(k, "ltrim");
       var val = get_bbkey(k, "list");
       if (val === null) {
-        return true;
+        return "OK";
       }
       if (end === -1) {
         val = val.slice(start);
@@ -421,7 +425,7 @@ var BankersBoxKeyException = function(msg) {
         val = val.slice(start, end + 1);
       }
       set_bbkey(k, val, "list");
-      return true;
+      return "OK";
     };
 
     this.rpop = function(k) {
