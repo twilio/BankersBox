@@ -265,6 +265,7 @@ var BankersBoxKeyException = function(msg) {
     this.validate_key(k, "set");
     this.set_bbkey(k, v);
     this.set_bbkeytype(k, "string");
+    return "OK"
   };
 
   BB.prototype.setnx = function(k, v) {
@@ -386,7 +387,11 @@ var BankersBoxKeyException = function(msg) {
     }
 
     this.set_bbkey(k, val, "list");
-    return Math.min(ret, Math.abs(count));
+    if (count == 0) {
+      return ret;
+    } else {
+      return Math.min(ret, Math.abs(count));
+    }
 
   };
 
@@ -404,14 +409,14 @@ var BankersBoxKeyException = function(msg) {
     }
     val[i] = v;
     this.set_bbkey(k, val, "list");
-    return true;
+    return "OK";
   };
 
   BB.prototype.ltrim = function(k, start, end) {
     this.validate_key(k, "ltrim");
     var val = this.get_bbkey(k, "list");
     if (val === null) {
-      return true;
+      return "OK";
     }
     if (end === -1) {
       val = val.slice(start);
@@ -419,7 +424,7 @@ var BankersBoxKeyException = function(msg) {
       val = val.slice(start, end + 1);
     }
     this.set_bbkey(k, val, "list");
-    return true;
+    return "OK";
   };
 
   BB.prototype.rpop = function(k) {
