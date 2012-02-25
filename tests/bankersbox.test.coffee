@@ -1,5 +1,7 @@
 assert = require "assert"
-{ BankersBox } = require "../bankersbox"
+{ BankersBox } = require "bankersbox"
+
+### KEY ###
 
 exports.testExistsFalse = ->
   bb = new BankersBox(1)
@@ -10,11 +12,6 @@ exports.testExistsTrue = ->
   bb.set "foo", "bar"
   assert.equal bb.exists("foo"), true, "key exists is true"
 
-exports.testSetAndGet = ->
-  bb = new BankersBox(1)
-  bb.set "foo", "bar"
-  assert.equal bb.get("foo"), "bar", "test set"
-
 exports.testDelKey = ->
   bb = new BankersBox(1)
   bb.set "foo", "bar"
@@ -22,6 +19,13 @@ exports.testDelKey = ->
   bb.del "foo"
   assert.equal bb.get("foo"), null, "test del key get"
   assert.equal bb.exists("foo"), false, "test del key exists"
+
+### STRING ###
+
+exports.testSetAndGet = ->
+  bb = new BankersBox(1)
+  bb.set "foo", "bar"
+  assert.equal bb.get("foo"), "bar", "test set"
 
 exports.testGetNull = ->
   bb = new BankersBox(1)
@@ -99,7 +103,7 @@ exports.testAppendExistingKey = ->
   assert.equal bb.append("zxcv", " World"), 11, "test append new key return"
   assert.equal bb.get("zxcv"), "Hello World", "test append new key"
 
-
+### LISTS ###
 
 ###
 * [KEYS](http://redis.io/commands#generic)
