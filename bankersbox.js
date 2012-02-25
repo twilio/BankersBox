@@ -229,9 +229,10 @@ var BankersBoxKeyException = function(msg) {
     var val = this.get(k);
     if (val !== null) {
       this.set(k, val + v);
-      return;
+      return (val + v).length;
     }
     this.set(k, v);
+    return v.toString().length
   };
 
   BB.prototype.decr = function(k) {
@@ -270,9 +271,10 @@ var BankersBoxKeyException = function(msg) {
     this.validate_key(k, "setnx");
     var val = this.get(k);
     if (val !== null) {
-      return;
+      return 0;
     }
     this.set(k, v);
+    return 1;
   };
 
   BB.prototype.strlen = function(k) {
