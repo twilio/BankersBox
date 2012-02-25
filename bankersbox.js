@@ -13,7 +13,7 @@ var BankersBoxKeyException = function(msg) {
 (function(ctx) {
 
   if (typeof(window) === 'undefined') {
-    window = {}
+    window = {};
   }
 
 // Array Remove - By John Resig (MIT Licensed)
@@ -79,7 +79,7 @@ var BankersBoxKeyException = function(msg) {
   BB.prototype.exists_raw = function(k) {
     var ret = this.store[k] || ls_get(k);
     return ret ? true : false;
-  }
+  };
 
   BB.prototype.get_raw = function(k, t) {
     var ret = this.store[k];
@@ -119,7 +119,7 @@ var BankersBoxKeyException = function(msg) {
 
   BB.prototype.exists_bbkey = function(k) {
     return this.exists_raw(this.prefix + k);
-  }
+  };
 
   BB.prototype.get_bbkey = function(k, t) {
     return this.get_raw(this.prefix + k, t);
@@ -215,7 +215,7 @@ var BankersBoxKeyException = function(msg) {
   BB.prototype.get = function(k) {
     this.validate_key(k, "get");
     return this.get_bbkey(k);
-  }
+  };
 
   BB.prototype.getset = function(k, v) {
     this.validate_key(k, "getset");
@@ -232,7 +232,7 @@ var BankersBoxKeyException = function(msg) {
       return (val + v).length;
     }
     this.set(k, v);
-    return v.toString().length
+    return v.toString().length;
   };
 
   BB.prototype.decr = function(k) {
@@ -265,7 +265,7 @@ var BankersBoxKeyException = function(msg) {
     this.validate_key(k, "set");
     this.set_bbkey(k, v);
     this.set_bbkeytype(k, "string");
-    return "OK"
+    return "OK";
   };
 
   BB.prototype.setnx = function(k, v) {
@@ -382,8 +382,8 @@ var BankersBoxKeyException = function(msg) {
     }
     
     while(to_remove.length) {
-      var i = to_remove.pop();
-      arr_remove(val, i);
+      var el = to_remove.pop();
+      arr_remove(val, el);
     }
 
     this.set_bbkey(k, val, "list");
