@@ -13,7 +13,7 @@ var BankersBoxKeyException = function(msg) {
 (function(ctx) {
 
   if (typeof(window) === 'undefined') {
-    window = {}
+    window = {};
   }
 
 // Array Remove - By John Resig (MIT Licensed)
@@ -217,7 +217,7 @@ var BankersBoxKeyException = function(msg) {
     this.get = function(k) {
       validate_key(k, "get");
       return get_bbkey(k);
-    }
+    };
 
     this.getset = function(k, v) {
       validate_key(k, "getset");
@@ -384,8 +384,8 @@ var BankersBoxKeyException = function(msg) {
       }
 
       while(to_remove.length) {
-        var i = to_remove.pop();
-        arr_remove(val, i);
+        var el = to_remove.pop();
+        arr_remove(val, el);
       }
 
       set_bbkey(k, val, "list");
