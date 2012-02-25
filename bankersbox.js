@@ -231,9 +231,10 @@ var BankersBoxKeyException = function(msg) {
       var val = self.get(k);
       if (val !== null) {
         self.set(k, val + v);
-        return;
+        return (val + v).length;
       }
       self.set(k, v);
+      return v.toString().length;
     };
 
     this.decr = function(k) {
@@ -272,9 +273,10 @@ var BankersBoxKeyException = function(msg) {
       validate_key(k, "setnx");
       var val = self.get(k);
       if (val !== null) {
-        return;
+        return 0;
       }
       self.set(k, v);
+      return 1;
     };
 
     this.strlen = function(k) {
