@@ -157,6 +157,30 @@ exports.testSrem = ->
   assert.equal bb.sismember("myset", "b"), false, "test srem member is not in set"
 
 
+exports.testSremEmptySetRemovesKey = ->
+  bb = new BankersBox(1)
+  bb.sadd "foo", "a"
+  bb.sadd "foo", "b"
+  bb.srem "foo", "a"
+  bb.srem "foo", "b"
+  assert.equal bb.exists("foo"), false, "test srem empty set deletes key"
+
+exports.testSpopEmptySetRemovesKey = ->
+  bb = new BankersBox(1)
+  bb.sadd "foo", "a"
+  bb.sadd "foo", "b"
+  bb.srem "foo", "a"
+  bb.spop "foo"
+  assert.equal bb.exists("foo"), false, "test spop empty set deletes key"
+
+exports.testSmoveEmptySetRemovesKey = ->
+  bb = new BankersBox(1)
+  bb.sadd "foo", "a"
+  bb.sadd "foo", "b"
+  bb.srem "foo", "a"
+  bb.smove "foo", "bar", "b"
+  assert.equal bb.exists("foo"), false, "test smove empty set deletes key"
+
 ###
 * [SETS](http://redis.io/commands#set
   x* sadd
