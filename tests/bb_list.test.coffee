@@ -223,3 +223,26 @@ exports.testRpoplpush = ->
   assert.equal bb.rpoplpush("mylist", "mylist"), "c", "test rpoplpush"
   assert.eql bb.lrange("mylist", 0, -1), ["c", "a", "b"], "test rpoplpush mylist remaining"
 
+exports.testLpopEmptyListRemoved = ->
+  bb = new BankersBox(1)
+  bb.lpush "foo", "a"
+  bb.lpush "foo", "b"
+  bb.lpop "foo"
+  bb.lpop "foo"
+  assert.equal bb.exists("foo"), false, "test lpop empty list becomes deleted"
+
+exports.testRpopEmptyListRemoved = ->
+  bb = new BankersBox(1)
+  bb.rpush "foo", "a"
+  bb.rpush "foo", "b"
+  bb.rpop "foo"
+  bb.rpop "foo"
+  assert.equal bb.exists("foo"), false, "test rpop empty list becomes deleted"
+
+exports.testRpoplpushEmptyListRemoved = ->
+  bb = new BankersBox(1)
+  bb.lpush "foo", "a"
+  bb.lpush "foo", "b"
+  bb.rpop "foo"
+  bb.rpoplpush "foo", "bar"
+  assert.equal bb.exists("foo"), false, "test rpoplpush empty list becomes deleted"
