@@ -1,15 +1,3 @@
-var BankersBoxException = function(msg) {
-  this.type = "BankersBoxException";
-  this.toString = function() {
-    return this.type + ": " + msg.toString();
-  };
-};
-
-var BankersBoxKeyException = function(msg) {
-  BankersBoxException.call(this, msg);
-  this.type = "BankersBoxKeyException";
-};
-
 (function(ctx) {
 
   if (typeof(window) === 'undefined') {
@@ -608,7 +596,21 @@ var BankersBoxKeyException = function(msg) {
     return "[object BankersBox]";
   };
 
-  //return BB;
+
+  var BankersBoxException = function(msg) {
+    this.type = "BankersBoxException";
+    this.toString = function() {
+      return this.type + ": " + msg.toString();
+    };
+  };
+   
+  var BankersBoxKeyException = function(msg) {
+    BankersBoxException.call(this, msg);
+    this.type = "BankersBoxKeyException";
+  };
+
   ctx.BankersBox = BB;
+  ctx.BankersBoxException = BankersBoxException;
+  ctx.BankersBoxKeyException = BankersBoxKeyException;
   
 })(typeof(module) !== 'undefined' && module && module.exports ? module.exports : window);
