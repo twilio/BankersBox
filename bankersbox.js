@@ -562,9 +562,6 @@
       return null;
     }
     var members = this.smembers(k);
-    if (members.length === 0) {
-      return null;
-    }
     var i = Math.floor(Math.random() * members.length);
     var ret = members[i];
     return ret;
