@@ -175,7 +175,7 @@
       tmap["srandmember"] = "set";
 
       if (tmap[checktype] === undefined) {
-	throw new BankersBoxException("unknown key operation in validate_key");
+        throw new BankersBoxException("unknown key operation in validate_key");
       }
 
       if (keytype === undefined || keytype === null || tmap[checktype] === undefined || tmap[checktype] == keytype) {
@@ -317,10 +317,11 @@
         return null;
       }
       var ret = val.shift();
-      if (ret === undefined) {
-        ret = null;
+      if (val.length === 0) {
+        self.del(k);
+      } else {
+        set_bbkey(k, val, "list");
       }
-      set_bbkey(k, val, "list");
       return ret;
     };
 
@@ -429,10 +430,11 @@
         return null;
       }
       var ret = val.pop();
-      if (ret === undefined) {
-        ret = null;
+      if (val.length === 0) {
+        self.del(k);
+      } else {
+        set_bbkey(k, val, "list");
       }
-      set_bbkey(k, val, "list");
       return ret;
     };
 
@@ -561,9 +563,6 @@
         return null;
       }
       var members = self.smembers(k);
-      if (members.length === 0) {
-        return null;
-      }
       var i = Math.floor(Math.random() * members.length);
       var ret = members[i];
       return ret;
@@ -580,8 +579,12 @@
         ret = 1;
         delete val[v];
         var scard = parseInt(get_bbkeymeta(k, "card")) - 1;
-        set_bbkey(k, val, "set");
-        set_bbkeymeta(k, "card", scard);
+        if (scard === 0) {
+          self.del(k);
+        } else {
+          set_bbkey(k, val, "set");
+          set_bbkeymeta(k, "card", scard);
+        }
       }
       return ret;
     };
