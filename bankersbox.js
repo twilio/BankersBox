@@ -381,13 +381,16 @@
       arr_remove(val, el);
     }
 
-    this.set_bbkey(k, val, "list");
+    if (val.length === 0) {
+      this.del(k);
+    } else {
+      this.set_bbkey(k, val, "list");  
+    }
     if (count == 0) {
       return ret;
     } else {
       return Math.min(ret, Math.abs(count));
     }
-
   };
 
   BB.prototype.lset = function(k, i, v) {
@@ -418,7 +421,11 @@
     } else {
       val = val.slice(start, end + 1);
     }
-    this.set_bbkey(k, val, "list");
+    if (val.length === 0) {
+      this.del(k);
+    } else {
+      this.set_bbkey(k, val, "list");  
+    }
     return "OK";
   };
 
