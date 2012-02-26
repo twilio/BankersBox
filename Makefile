@@ -5,7 +5,7 @@ clean:
 	rm -rf src-tmp
 	rm -rf src-min-tmp
 	rm -rf src-cov
-	rm bankersbox.min.js
+	rm -f bankersbox.min.js
 
 bankersbox.min.js: bankersbox.js
 	@echo "Sending to Google Closure compiler..."
