@@ -604,6 +604,6 @@
    
   ctx.BankersBox = BB;
   ctx.BankersBoxException = BankersBoxException;
-  ctx.BankersBoxKeyExcpetion = BankersBoxKeyException;
+  ctx.BankersBoxKeyException = BankersBoxKeyException;
   
 })(typeof(module) !== 'undefined' && module && module.exports ? module.exports : window);
