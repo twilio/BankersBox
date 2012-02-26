@@ -1,5 +1,5 @@
 (function(ctx) {
-   
+
   if (typeof(window) === 'undefined') {
     window = {};
   }
