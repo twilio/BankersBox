@@ -1,7 +1,7 @@
 (function(ctx) {
-
+   
   if (typeof(window) === 'undefined') {
-    window = {};
+     window = {};
   }
 
 // Array Remove - By John Resig (MIT Licensed)
