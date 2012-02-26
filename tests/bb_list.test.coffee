@@ -131,8 +131,11 @@ exports.testLset = ->
   bb.lpush "mylist", "b"
   bb.rpush "mylist", "c"
   bb.rpush "mylist", "d"
-  assert.equal bb.lset("mylist", 0, "f"), "OK", "test lset return"
-  assert.eql bb.lrange("mylist", 0, 0), ["f"], "test lset remaining"
+  assert.equal bb.lset("mylist", 0, "f"), "OK", "test lset return 1"
+  assert.eql bb.lrange("mylist", 0, 0), ["f"], "test lset remaining 1"
+  # test negative index
+  assert.equal bb.lset("mylist", -1, "g"), "OK", "test lset return 2"
+  assert.eql bb.lrange("mylist", -1, -1), ["g"], "test lset remaining 2"
 
 exports.testLtrimNonKey = ->
   bb = new BankersBox(1)
@@ -144,8 +147,31 @@ exports.testLtrim = ->
   bb.lpush "mylist", "b"
   bb.rpush "mylist", "c"
   bb.rpush "mylist", "d"
-  assert.equal bb.ltrim("mylist", 1, -1), "OK", "test ltrim return"
-  assert.eql bb.lrange("mylist", 0, -1), ["a", "c", "d"], "test ltrim remaining"
+  assert.equal bb.ltrim("mylist", 1, -1), "OK", "test ltrim return 1"
+  assert.eql bb.lrange("mylist", 0, -1), ["a", "c", "d"], "test ltrim remaining 1"
+  # test non -1 second index
+  assert.equal bb.ltrim("mylist", 0, 1), "OK", "test ltrim return 2"
+  assert.eql bb.lrange("mylist", 0, -1), ["a", "c"], "test ltrim reamining 2"
+  # test other negative second index
+  bb.rpush "mylist", "e"
+  bb.rpush "mylist", "f"
+  assert.eql bb.lrange("mylist", 0, -1), ["a", "c", "e", "f"], "test ltrim sanity check"
+  assert.equal bb.ltrim("mylist", 0, -2), "OK", "test ltrim return 3"
+  assert.eql bb.lrange("mylist", 0, -1), ["a", "c", "e"], "test ltrim remaining 3"
+  # test out of range returns - end out of range
+  assert.equal bb.ltrim("mylist", 1, 10), "OK", "test ltrim return 4"
+  assert.eql bb.lrange("mylist", 0, -1), ["c", "e"], "test ltrim remaining 4"
+  # test out of range return - start > length
+  assert.equal bb.ltrim("mylist", 5, 10), "OK", "test ltrim return 5"
+  assert.eql bb.lrange("mylist", 0, -1), [], "test ltrim remaining 5"
+  # test out of range return - start > end
+  bb.rpush "mylist", "a"
+  bb.rpush "mylist", "b"
+  bb.rpush "mylist", "c"
+  bb.rpush "mylist", "d"
+  assert.eql bb.lrange("mylist", 0, -1), ["a", "b", "c", "d"], "test ltrim sanity check"
+  assert.equal bb.ltrim("mylist", 1, 0), "OK", "test ltrim return 6"
+  assert.eql bb.lrange("mylist", 0, -1), [], "test ltrim remaining 6"
 
 exports.testLremNonKey = ->
   bb = new BankersBox(1)
@@ -246,3 +272,30 @@ exports.testRpoplpushEmptyListRemoved = ->
   bb.rpop "foo"
   bb.rpoplpush "foo", "bar"
   assert.equal bb.exists("foo"), false, "test rpoplpush empty list becomes deleted"
+
+exports.testLtrimEmptyListRemoved = ->
+  bb = new BankersBox(1)
+  bb.lpush "mylist", "a"
+  bb.lpush "mylist", "b"
+  bb.lpush "mylist", "c"
+  bb.lpush "mylist", "d"
+  # out of range - start > length
+  bb.ltrim "mylist", 5, 10
+  assert.equal bb.exists("mylist"), false, "test ltrim out of range deletes key 1"
+  # reset
+  bb.lpush "mylist", "a"
+  bb.lpush "mylist", "b"
+  bb.lpush "mylist", "c"
+  bb.lpush "mylist", "d"
+  # out of range - start > end
+  bb.ltrim "mylist", 1, 0
+  assert.equal bb.exists("mylist"), false, "test ltrim out of range deletes key 2"
+
+exports.testLremEmptyListRemoved = ->
+  bb = new BankersBox(1)
+  bb.lpush "mylist", "a"
+  bb.lpush "mylist", "a"
+  bb.lpush "mylist", "a"
+  bb.lpush "mylist", "a"
+  bb.lrem "mylist", 0, "a"
+  assert.equal bb.exists("mylist"), false, "test lrem empty list becomes deleted"
