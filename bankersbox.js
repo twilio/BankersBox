@@ -383,7 +383,11 @@
         arr_remove(val, el);
       }
 
-      set_bbkey(k, val, "list");
+      if (val.length === 0) {
+        self.del(k);
+      } else {
+        set_bbkey(k, val, "list");
+      }
       if (count == 0) {
         return ret;
       } else {
@@ -419,7 +423,11 @@
       } else {
         val = val.slice(start, end + 1);
       }
-      set_bbkey(k, val, "list");
+      if (val.length === 0) {
+        self.del(k);
+      } else {
+        set_bbkey(k, val, "list");
+      }
       return "OK";
     };
 
