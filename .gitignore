@@ -1,3 +1,7 @@
 *.*~
 *~
 node_modules/
+bankersbox.min.js
+src-tmp/
+src-min-tmp/
+src-cov/
