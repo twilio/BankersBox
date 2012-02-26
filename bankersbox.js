@@ -582,10 +582,10 @@
       delete val[v];
       var scard = parseInt(this.get_bbkeymeta(k, "card")) - 1;
       if (scard === 0) {
-	this.del(k);
+        this.del(k);
       } else {
-	this.set_bbkey(k, val, "set");
-	this.set_bbkeymeta(k, "card", scard);
+        this.set_bbkey(k, val, "set");
+        this.set_bbkeymeta(k, "card", scard);
       }
     }
     return ret;
