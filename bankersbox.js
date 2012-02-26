@@ -153,8 +153,10 @@
       tmap["incrby"] = "string";
       tmap["getset"] = "string";
       tmap["lpush"] = "list";
+      tmap["lpushx"] = "list";
       tmap["lpop"] = "list";
       tmap["rpush"] = "list";
+      tmap["rpushx"] = "list";
       tmap["rpop"] = "list";
       tmap["rpoplpush"] = "list";
       tmap["llen"] = "list";
@@ -171,6 +173,10 @@
       tmap["smove"] = "set";
       tmap["spop"] = "set";
       tmap["srandmember"] = "set";
+
+      if (tmap[checktype] === undefined) {
+	throw new BankersBoxException("unknown key operation in validate_key");
+      }
 
       if (keytype === undefined || keytype === null || tmap[checktype] === undefined || tmap[checktype] == keytype) {
         return true;
@@ -305,7 +311,7 @@
     };
 
     this.lpop = function(k) {
-      validate_key(k, "list");
+      validate_key(k, "lpop");
       var val = get_bbkey(k, "list");
       if (val === null) {
         return null;
@@ -319,7 +325,7 @@
     };
 
     this.lpush = function(k, v) {
-      validate_key(k, "list");
+      validate_key(k, "lpush");
       var val = get_bbkey(k, "list");
       if (val === null) {
         val = [];
@@ -330,7 +336,7 @@
     };
 
     this.lpushx = function(k, v) {
-      validate_key(k, "list");
+      validate_key(k, "lpushx");
       var val = get_bbkey(k, "list");
       if (val !== null) {
         return self.lpush(k, v);
@@ -417,7 +423,7 @@
     };
 
     this.rpop = function(k) {
-      validate_key(k, "list");
+      validate_key(k, "rpop");
       var val = get_bbkey(k, "list");
       if (val === null) {
         return null;
@@ -431,7 +437,7 @@
     };
 
     this.rpush = function(k, v) {
-      validate_key(k, "list");
+      validate_key(k, "rpush");
       var val = get_bbkey(k);
       if (val === null) {
         val = [];
@@ -442,7 +448,7 @@
     };
 
     this.rpushx = function(k, v) {
-      validate_key(k, "list");
+      validate_key(k, "rpushx");
       var val = get_bbkey(k, "list");
       if (val !== null) {
         return self.rpush(k, v);
@@ -451,8 +457,8 @@
     };
 
     this.rpoplpush = function(src, dest) {
-      validate_key(src, "list");
-      validate_key(dest, "list");
+      validate_key(src, "rpoplpush");
+      validate_key(dest, "rpoplpush");
 
       var srcval = get_bbkey(src, "list");
       var destval = get_bbkey(dest, "list");
