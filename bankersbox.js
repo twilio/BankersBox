@@ -315,10 +315,11 @@
       return null;
     }
     var ret = val.shift();
-    if (ret === undefined) {
-      ret = null;
+    if (val.length === 0) {
+      this.del(k);
+    } else {
+      this.set_bbkey(k, val, "list");
     }
-    this.set_bbkey(k, val, "list");
     return ret;
   };
 
@@ -428,10 +429,11 @@
       return null;
     }
     var ret = val.pop();
-    if (ret === undefined) {
-      ret = null;
+    if (val.length === 0) {
+      this.del(k);
+    } else {
+      this.set_bbkey(k, val, "list");
     }
-    this.set_bbkey(k, val, "list");
     return ret;
   };
 
@@ -579,8 +581,12 @@
       ret = 1;
       delete val[v];
       var scard = parseInt(this.get_bbkeymeta(k, "card")) - 1;
-      this.set_bbkey(k, val, "set");
-      this.set_bbkeymeta(k, "card", scard);
+      if (scard === 0) {
+	this.del(k);
+      } else {
+	this.set_bbkey(k, val, "set");
+	this.set_bbkeymeta(k, "card", scard);
+      }
     }
     return ret;
   };
