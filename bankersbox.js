@@ -153,8 +153,10 @@
     tmap["incrby"] = "string";
     tmap["getset"] = "string";
     tmap["lpush"] = "list";
+    tmap["lpushx"] = "list";
     tmap["lpop"] = "list";
     tmap["rpush"] = "list";
+    tmap["rpushx"] = "list";
     tmap["rpop"] = "list";
     tmap["rpoplpush"] = "list";
     tmap["llen"] = "list";
@@ -172,7 +174,11 @@
     tmap["spop"] = "set";
     tmap["srandmember"] = "set";
 
-    if (keytype === undefined || keytype === null || tmap[checktype] === undefined || tmap[checktype] == keytype) {
+    if (tmap[checktype] === undefined) {
+      throw new BankersBoxException("unknown key operation in validate_key");
+    }
+
+    if (keytype === undefined || keytype === null || tmap[checktype] == keytype) {
       return true;
     }
     throw(new BankersBoxKeyException("invalid operation on key type: " + keytype));
@@ -303,7 +309,7 @@
   };
 
   BB.prototype.lpop = function(k) {
-    this.validate_key(k, "list");
+    this.validate_key(k, "lpop");
     var val = this.get_bbkey(k, "list");
     if (val === null) {
       return null;
@@ -317,7 +323,7 @@
   };
 
   BB.prototype.lpush = function(k, v) {
-    this.validate_key(k, "list");
+    this.validate_key(k, "lpush");
     var val = this.get_bbkey(k, "list");
     if (val === null) {
       val = [];
@@ -328,7 +334,7 @@
   };
 
   BB.prototype.lpushx = function(k, v) {
-    this.validate_key(k, "list");
+    this.validate_key(k, "lpushx");
     var val = this.get_bbkey(k, "list");
     if (val !== null) {
       return this.lpush(k, v);
@@ -416,7 +422,7 @@
   };
 
   BB.prototype.rpop = function(k) {
-    this.validate_key(k, "list");
+    this.validate_key(k, "rpop");
     var val = this.get_bbkey(k, "list");
     if (val === null) {
       return null;
@@ -430,7 +436,7 @@
   };
 
   BB.prototype.rpush = function(k, v) {
-    this.validate_key(k, "list");
+    this.validate_key(k, "rpush");
     var val = this.get_bbkey(k);
     if (val === null) {
       val = [];
@@ -441,7 +447,7 @@
   };
 
   BB.prototype.rpushx = function(k, v) {
-    this.validate_key(k, "list");
+    this.validate_key(k, "rpushx");
     var val = this.get_bbkey(k, "list");
     if (val !== null) {
       return this.rpush(k, v);
@@ -450,8 +456,8 @@
   };
 
   BB.prototype.rpoplpush = function(src, dest) {
-    this.validate_key(src, "list");
-    this.validate_key(dest, "list");
+    this.validate_key(src, "rpoplpush");
+    this.validate_key(dest, "rpoplpush");
 
     var srcval = this.get_bbkey(src, "list");
     var destval = this.get_bbkey(dest, "list");
