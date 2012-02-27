@@ -60,8 +60,9 @@
 
     this.prefix = "bb:" + db.toString() + ":";
     this.mprefix = "bb:" + db.toString() + "m:";
+    this.keyskey = "bb:" + db.toString() + "k:___keys___";
     this.store = {};
-    this.keystore = this.get_bbkey("___keys___", "set") || {};
+    this.keystore = this.get_raw(this.keyskey, "set") || {};
 
     this.toString = function() {
       return "bb:" + this.db.toString();
@@ -86,11 +87,11 @@
     if (t === undefined || t === "string") {
       ret = this.adapter.getItem(k);
       try {
-	ret = JSON.parse(ret);
-	ret = ret.v;
+        ret = JSON.parse(ret);
+        ret = ret.v;
       } catch (e) {
       } finally {
-	this.store[k] = ret;
+        this.store[k] = ret;
       }
     } else {
       ret = this.store[k] = JSON.parse(this.adapter.getItem(k));
@@ -102,9 +103,9 @@
     this.store[k] = v;
     if (t === undefined || t === "string") {
       if (typeof v === "string") {
-	this.adapter.storeItem(k, v);
+        this.adapter.storeItem(k, v);
       } else {
-	this.adapter.storeItem(k, JSON.stringify({v: v}));
+        this.adapter.storeItem(k, JSON.stringify({v: v}));
       }
     } else if (t === "list") {
       this.adapter.storeItem(k, JSON.stringify(v));
@@ -124,7 +125,7 @@
       this.set_bbkeytype(k, t);
     }
     this.keystore[k] = 1;
-    this.set_raw(this.prefix + "___keys___", this.keystore, "set");
+    this.set_raw(this.keyskey, this.keystore, "set");
   };
 
   BB.prototype.exists_bbkey = function(k) {
@@ -138,7 +139,7 @@
   BB.prototype.del_bbkey = function(k) {
     this.del_raw(this.prefix + k);
     delete this.keystore[k];
-    this.set_raw(this.prefix + "___keys___", this.keystore, "set");
+    this.set_raw(this.keyskey, this.keystore, "set");
   };
 
   BB.prototype.set_bbkeymeta = function(k, meta, v) {
@@ -645,10 +646,14 @@
   };
 
   BB.prototype.select = function(i) {
+    if (isNaN(parseInt(i))) {
+      throw(new BankersBoxException("db index must be an integer"));
+    }
     this.db = i;
     this.prefix = "bb:" + i.toString() + ":";
     this.mprefix = "bb:" + i.toString() + "m:";
-    this.keystore = this.get_bbkey("___keys___", "set") || {};
+    this.keyskey = "bb:" + i.toString() + "k:___keys___";
+    this.keystore = this.get_raw(this.keyskey, "set") || {};
   };
 
   BB.toString = function() {
