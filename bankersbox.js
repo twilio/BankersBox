@@ -87,8 +87,10 @@
     if (t === undefined || t === "string") {
       ret = this.adapter.getItem(k);
       try {
-        ret = JSON.parse(ret);
-        ret = ret.v;
+        var obj = JSON.parse(ret);
+        if (obj.v) {
+          ret = obj.v;
+        }
       } catch (e) {
       } finally {
         this.store[k] = ret;
@@ -102,11 +104,7 @@
   BB.prototype.set_raw = function(k, v, t) {
     this.store[k] = v;
     if (t === undefined || t === "string") {
-      if (typeof v === "string") {
-        this.adapter.storeItem(k, v);
-      } else {
-        this.adapter.storeItem(k, JSON.stringify({v: v}));
-      }
+      this.adapter.storeItem(k, JSON.stringify({v: v}));
     } else if (t === "list") {
       this.adapter.storeItem(k, JSON.stringify(v));
     } else if (t === "set") {
