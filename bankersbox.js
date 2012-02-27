@@ -4,6 +4,31 @@
     window = {};
   }
 
+  if (typeof(window.localStorage) === 'undefined') {
+    window.localStorage = {};
+    window.localStorage.store = {};
+    window.localStorage.setItem = function(k, v) {
+      //_log("set : " + k);
+      //window.localStorage.store[k] = v;
+    };
+    window.localStorage.getItem = function(k) {
+      //_log("get: " + k);
+      var ret;
+      ret = window.localStorage.store[k];
+      if (ret === undefined) {
+        //_log("ret: null");
+        return null;
+      }
+      //_log("ret: " + ret);
+      //return ret;
+      return null;
+    };
+    window.localStorage.removeItem  = function(k) {
+      //_log("remove: " + k);
+      //delete window.localStorage.store[k];
+    };
+  }
+
 // Array Remove - By John Resig (MIT Licensed)
   var arr_remove = function(array, from, to) {
     var rest = array.slice((to || from) + 1 || array.length);
@@ -12,8 +37,8 @@
   };
   
   var _log = function(m) {
-    if (window.console && window.console.log) {
-      window.console.log(m);
+    if (console && console.log) {
+      console.log(m);
     }
   };
   
@@ -53,6 +78,7 @@
     this.db = db;
     this.prefix = "bb:" + db.toString() + ":";
     this.store = {};
+    this.keystore = this.keystore = this.get_bbkey("___keys___", "set") || {};
 
     this.toString = function() {
       return "bb:" + this.db.toString();
@@ -103,6 +129,8 @@
     if (t !== undefined) {
       this.set_bbkeytype(k, t);
     }
+    this.keystore[k] = 1;
+    this.set_raw(this.prefix + "___keys___", this.keystore, "set");
   };
 
   BB.prototype.exists_bbkey = function(k) {
@@ -115,6 +143,8 @@
 
   BB.prototype.del_bbkey = function(k) {
     this.del_raw(this.prefix + k);
+    delete this.keystore[k];
+    this.set_raw(this.prefix + "___keys___", this.keystore, "set");
   };
 
   BB.prototype.set_bbkeymeta = function(k, meta, v) {
@@ -596,10 +626,30 @@
   };
 
   /* ---- SERVER ---- */
-  
+
+  BB.prototype.keys = function(filter) {
+    // TODO: implement filter.. for now just return *
+    var ret = [];
+    for (var k in this.keystore) {
+      if (this.keystore.hasOwnProperty(k)) {
+        ret.push(k);
+      }
+    }
+    return ret;
+  };
+
+  BB.prototype.flushdb = function() {
+    var keys = this.keys("*");
+    for (var i in keys) {
+      this.del(keys[i]);
+    }
+    return "OK";
+  };
+
   BB.prototype.select = function(i) {
     this.db = i;
     this.prefix = "bb:" + i.toString() + ":";
+    this.keystore = this.get_bbkey("___keys___", "set") || {};
   };
 
   BB.toString = function() {
