@@ -80,7 +80,6 @@
     this.db = db;
     this.prefix = "bb:" + db.toString() + ":";
     this.store = {};
-    this.keystore = this.keystore = this.get_bbkey("___keys___", "set") || {};
 
     this.toString = function() {
       return "bb:" + this.db.toString();
@@ -133,6 +132,8 @@
       if (t !== undefined) {
         set_bbkeytype(k, t);
       }
+      keystore[k] = 1;
+      set_raw(self.prefix + "___keys___", keystore, "set");
     };
 
     var get_bbkey = function(k, t) {
@@ -141,6 +142,8 @@
 
     var del_bbkey = function(k) {
       del_raw(self.prefix + k);
+      delete keystore[k];
+      set_raw(self.prefix + "___keys___", keystore, "set");
     };
 
     var set_bbkeymeta = function(k, meta, v) {
@@ -625,11 +628,33 @@
 
     /* ---- SERVER ---- */
 
-    this.select = function(i) {
-      this.db = i;
-      this.prefix = "bb:" + i.toString() + ":";
+    this.keys = function(filter) {
+      // TODO: implement filter.. for now just return *
+      var ret = [];
+      for (var k in keystore) {
+        if (keystore.hasOwnProperty(k)) {
+          ret.push(k);
+        }
+      }
+      return ret;
     };
 
+    this.flushdb = function() {
+      var keys = self.keys("*");
+      for (var i in keys) {
+        self.del(keys[i]);
+      }
+      del_raw(self.prefix + "___keys___");
+      return "OK";
+    };
+
+    this.select = function(i) {
+      self.db = i;
+      self.prefix = "bb:" + i.toString() + ":";
+      keystore = get_bbkey("___keys___", "set") || {};
+    };
+
+    var keystore = get_bbkey("___keys___", "set") || {};
 
   }; /* end constructor */
 
