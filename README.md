@@ -112,7 +112,7 @@ Values stored in sets should be primitive values. When storing arrays or objects
   * rpoplpush
   * rpush
   * rpushx
-* [SETS](http://redis.io/commands#set
+* [SETS](http://redis.io/commands#set)
   * sadd
   * scard
   * sismember
@@ -125,16 +125,3 @@ Values stored in sets should be primitive values. When storing arrays or objects
   * none, see TODO.md
 * [CONNECTION](http://redis.io/commands#connection)
   * select
-
-## Implementation Notes
-
-BankersBox uses an internal write-through cache object for quick
-reads. This means, however, that if the cache is cold (e.g. after a
-page refresh), BankersBox will go to localStorage to fill the
-cache. Since localStorage stores all values as strings, cold cache
-values for primitive types will be filled with strings. If you are
-storing values that are integers, floats, or booleans, you will need
-to coerce these values back into your preferred type after reading
-them from BankersBox. This only holds true for simple key-value
-operation reads (e.g. get). Operations on lists and sets will return
-the proper types within their arrays or objects.

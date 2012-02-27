@@ -4,11 +4,7 @@
 
 * Allow functions to take variable arguments where appropriate (e.g. lpush, etc)
 
-* Delete key from the store when it is a List or Set that has become empty (to mimick redis implementation)
-
 * There currenlty exists no concept of key expiry as redis has. Is this even wanted, needed?
-
-* Store a reverse lookup set of all known keys (so as to implement the 'keys' function)
 
 * Privatize some of the internal functions so they are not exposed to the public
 
