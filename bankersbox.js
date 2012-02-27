@@ -83,7 +83,14 @@
         return ret;
       }
       if (t === undefined || t === "string") {
-        ret = self.store[k] = self.adapter.getItem(k);
+	ret = self.adapter.getItem(k);
+	try {
+	  ret = JSON.parse(ret);
+	  ret = ret.v;
+	} catch (e) {
+	} finally {
+	  self.store[k] = ret;
+	}
       } else {
         ret = self.store[k] = JSON.parse(self.adapter.getItem(k));
       }
@@ -94,6 +101,11 @@
       self.store[k] = v;
       if (t === undefined || t === "string") {
         self.adapter.storeItem(k, v);
+	if (typeof v === "string") {
+	  self.adapter.storeItem(k, v);
+	} else {
+	  self.adapter.storeItem(k, JSON.stringify({v: v}));
+	}
       } else if (t === "list") {
         self.adapter.storeItem(k, JSON.stringify(v));
       } else if (t === "set") {
