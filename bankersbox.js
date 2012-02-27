@@ -61,6 +61,7 @@
     }
 
     this.prefix = "bb:" + db.toString() + ":";
+    this.mprefix = "bb:" + db.toString() + "m:";
     this.store = {};
 
     this.toString = function() {
@@ -129,15 +130,15 @@
     };
 
     var set_bbkeymeta = function(k, meta, v) {
-      set_raw(self.prefix + k + ":__" + meta + "__", v);
+      set_raw(self.mprefix + k + ":__" + meta + "__", v);
     };
 
     var get_bbkeymeta = function(k, meta) {
-      return get_raw(self.prefix + k + ":__" + meta + "__");
+      return get_raw(self.mprefix + k + ":__" + meta + "__");
     };
 
     var del_bbkeymeta = function(k, meta) {
-      del_raw(self.prefix + k + ":__" + meta + "__");
+      del_raw(self.mprefix + k + ":__" + meta + "__");
     };
 
     var set_bbkeytype = function(k, v) {
@@ -635,6 +636,7 @@
     this.select = function(i) {
       self.db = i;
       self.prefix = "bb:" + i.toString() + ":";
+      self.mprefix = "bb:" + i.toString() + "m:";
       keystore = get_bbkey("___keys___", "set") || {};
     };
 
