@@ -86,8 +86,10 @@
       if (t === undefined || t === "string") {
         ret = self.adapter.getItem(k);
         try {
-          ret = JSON.parse(ret);
-          ret = ret.v;
+          var obj = JSON.parse(ret);
+          if (obj.v) {
+            ret = obj.v;
+          }
         } catch (e) {
         } finally {
           self.store[k] = ret;
@@ -101,12 +103,7 @@
     var set_raw = function(k, v, t) {
       self.store[k] = v;
       if (t === undefined || t === "string") {
-        self.adapter.storeItem(k, v);
-        if (typeof v === "string") {
-          self.adapter.storeItem(k, v);
-        } else {
-          self.adapter.storeItem(k, JSON.stringify({v: v}));
-        }
+        self.adapter.storeItem(k, JSON.stringify({v: v}));
       } else if (t === "list") {
         self.adapter.storeItem(k, JSON.stringify(v));
       } else if (t === "set") {
