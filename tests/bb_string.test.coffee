@@ -110,3 +110,24 @@ exports.testAppendExistingKey = ->
   bb.set "zxcv", "Hello"
   assert.equal bb.append("zxcv", " World"), 11, "test append new key return"
   assert.equal bb.get("zxcv"), "Hello World", "test append new key"
+
+exports.testStringRepresentations = ->
+  bb = new BankersBox(1)
+  bb.flushdb()
+  bb.set "a", "a string"
+  bb.set "b", 3
+  bb.set "b2", 3.14159
+  bb.set "c", true
+  bb.set "d", [1, 2, 3]
+  bb.set "e", {foo: "hello", bar: "goodbye"}
+  bb.set "f", JSON.stringify({foo: "hello", bar: "goodbye"})
+  bb.set "g", JSON.stringify({foo: "hello", bar: "goodbye", v: "uh oh"})
+  cc = new BankersBox(1)
+  assert.equal cc.get("a"), "a string"
+  assert.equal cc.get("b"), 3
+  assert.equal cc.get("b2"), 3.14159
+  assert.equal cc.get("c"), true
+  assert.eql cc.get("d"), [1, 2, 3]
+  assert.eql cc.get("e"), {foo: "hello", bar: "goodbye"}
+  assert.equal cc.get("f"), JSON.stringify({foo: "hello", bar: "goodbye"})
+  assert.equal cc.get("g"), JSON.stringify({foo: "hello", bar: "goodbye", v: "uh oh"})
