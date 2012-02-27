@@ -78,7 +78,7 @@
     this.db = db;
     this.prefix = "bb:" + db.toString() + ":";
     this.store = {};
-    this.keystore = this.keystore = this.get_bbkey("___keys___", "set") || {};
+    this.keystore = this.get_bbkey("___keys___", "set") || {};
 
     this.toString = function() {
       return "bb:" + this.db.toString();
