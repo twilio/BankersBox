@@ -40,21 +40,23 @@
     }
   };
 
-  var BB = function(db, adapter) {
+  var BB = function(db, opts) {
 
     if (isNaN(parseInt(db))) {
       throw(new BankersBoxException("db index must be an integer"));
     }
     db = parseInt(db);
-    
+
+    opts = opts || {};
+
     var self = this;
 
     this.db = db;
-    this.adapter = adapter;
+    this.adapter = opts.adapter;
 
-    if (adapter === undefined) {
+    if (this.adapter === undefined) {
       this.adapter = new BankersBoxLocalStorageAdapter();
-    } else if (adapter === null) {
+    } else if (this.adapter === null) {
       this.adapter = new BankersBoxNullAdapter();
     }
 
