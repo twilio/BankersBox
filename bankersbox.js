@@ -59,6 +59,7 @@
     }
 
     this.prefix = "bb:" + db.toString() + ":";
+    this.mprefix = "bb:" + db.toString() + "m:";
     this.store = {};
     this.keystore = this.get_bbkey("___keys___", "set") || {};
 
@@ -130,15 +131,15 @@
   };
 
   BB.prototype.set_bbkeymeta = function(k, meta, v) {
-    this.set_raw(this.prefix + k + ":__" + meta + "__", v);
+    this.set_raw(this.mprefix + k + ":__" + meta + "__", v);
   };
 
   BB.prototype.get_bbkeymeta = function(k, meta) {
-    return this.get_raw(this.prefix + k + ":__" + meta + "__");
+    return this.get_raw(this.mprefix + k + ":__" + meta + "__");
   };
 
   BB.prototype.del_bbkeymeta = function(k, meta) {
-    this.del_raw(this.prefix + k + ":__" + meta + "__");
+    this.del_raw(this.mprefix + k + ":__" + meta + "__");
   };
 
   BB.prototype.set_bbkeytype = function(k, v) {
@@ -635,6 +636,7 @@
   BB.prototype.select = function(i) {
     this.db = i;
     this.prefix = "bb:" + i.toString() + ":";
+    this.mprefix = "bb:" + i.toString() + "m:";
     this.keystore = this.get_bbkey("___keys___", "set") || {};
   };
 
