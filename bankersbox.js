@@ -62,6 +62,7 @@
 
     this.prefix = "bb:" + db.toString() + ":";
     this.mprefix = "bb:" + db.toString() + "m:";
+    this.keyskey = "bb:" + db.toString() + "k:___keys___";
     this.store = {};
 
     this.toString = function() {
@@ -83,14 +84,14 @@
         return ret;
       }
       if (t === undefined || t === "string") {
-	ret = self.adapter.getItem(k);
-	try {
-	  ret = JSON.parse(ret);
-	  ret = ret.v;
-	} catch (e) {
-	} finally {
-	  self.store[k] = ret;
-	}
+        ret = self.adapter.getItem(k);
+        try {
+          ret = JSON.parse(ret);
+          ret = ret.v;
+        } catch (e) {
+        } finally {
+          self.store[k] = ret;
+        }
       } else {
         ret = self.store[k] = JSON.parse(self.adapter.getItem(k));
       }
@@ -101,11 +102,11 @@
       self.store[k] = v;
       if (t === undefined || t === "string") {
         self.adapter.storeItem(k, v);
-	if (typeof v === "string") {
-	  self.adapter.storeItem(k, v);
-	} else {
-	  self.adapter.storeItem(k, JSON.stringify({v: v}));
-	}
+        if (typeof v === "string") {
+          self.adapter.storeItem(k, v);
+        } else {
+          self.adapter.storeItem(k, JSON.stringify({v: v}));
+        }
       } else if (t === "list") {
         self.adapter.storeItem(k, JSON.stringify(v));
       } else if (t === "set") {
@@ -128,7 +129,7 @@
         set_bbkeytype(k, t);
       }
       keystore[k] = 1;
-      set_raw(self.prefix + "___keys___", keystore, "set");
+      set_raw(self.keyskey, keystore, "set");
     };
 
     var get_bbkey = function(k, t) {
@@ -138,7 +139,7 @@
     var del_bbkey = function(k) {
       del_raw(self.prefix + k);
       delete keystore[k];
-      set_raw(self.prefix + "___keys___", keystore, "set");
+      set_raw(self.keyskey, keystore, "set");
     };
 
     var set_bbkeymeta = function(k, meta, v) {
@@ -641,18 +642,22 @@
       for (var i in keys) {
         self.del(keys[i]);
       }
-      del_raw(self.prefix + "___keys___");
+      del_raw(self.keyskey);
       return "OK";
     };
 
     this.select = function(i) {
+      if (isNaN(parseInt(i))) {
+        throw(new BankersBoxException("db index must be an integer"));
+      }
       self.db = i;
       self.prefix = "bb:" + i.toString() + ":";
       self.mprefix = "bb:" + i.toString() + "m:";
-      keystore = get_bbkey("___keys___", "set") || {};
+      self.keyskey = "bb:" + i.toString() + "k:___keys___";
+      keystore = get_raw(self.keyskey, "set") || {};
     };
 
-    var keystore = get_bbkey("___keys___", "set") || {};
+    var keystore = get_raw(this.keyskey, "set") || {};
 
   }; /* end constructor */
 
