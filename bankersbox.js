@@ -22,6 +22,9 @@
     window.localStorage.removeItem  = function(k) {
       delete window.localStorage.store[k];
     };
+    window.localStorage.clear = function() {
+      window.localStorage.store = {};
+    };
   }
 
 // Array Remove - By John Resig (MIT Licensed)
@@ -36,34 +39,8 @@
       console.log(m);
     }
   };
-  
-  var ls_set = function(k, v) {
-    if (window.localStorage) {
-      try {
-        window.localStorage.setItem(k, v);
-      } catch (e) {
-        if (e == QUOTA_EXCEEDED_ERR) {
-          _log("quota exceeded!");
-        }
-        throw(e);
-      }
-    }
-  };
-  
-  var ls_get = function(k) {
-    if (window.localStorage) {
-      return window.localStorage.getItem(k);
-    }
-    return null;
-  };
-  
-  var ls_del = function(k) {
-    if (window.localStorage) {
-      window.localStorage.removeItem(k);
-    }
-  };
 
-  var BB = function(db) {
+  var BB = function(db, adapter) {
 
     if (isNaN(parseInt(db))) {
       throw(new BankersBoxException("db index must be an integer"));
@@ -71,6 +48,14 @@
     db = parseInt(db);
     
     this.db = db;
+    this.adapter = adapter;
+
+    if (adapter === undefined) {
+      this.adapter = new BankersBoxLocalStorageAdapter();
+    } else if (adapter === null) {
+      this.adapter = new BankersBoxNullAdapter();
+    }
+
     this.prefix = "bb:" + db.toString() + ":";
     this.store = {};
     this.keystore = this.get_bbkey("___keys___", "set") || {};
@@ -86,7 +71,7 @@
   };
 
   BB.prototype.exists_raw = function(k) {
-    var ret = this.store[k] || ls_get(k);
+    var ret = this.store[k] || this.adapter.getItem(k);
     return ret ? true : false;
   };
 
@@ -96,9 +81,9 @@
       return ret;
     }
     if (t === undefined || t === "string") {
-      ret = this.store[k] = ls_get(k);
+      ret = this.store[k] = this.adapter.getItem(k);
     } else {
-      ret = this.store[k] = JSON.parse(ls_get(k));
+      ret = this.store[k] = JSON.parse(this.adapter.getItem(k));
     }
     return ret;
   };
@@ -106,17 +91,17 @@
   BB.prototype.set_raw = function(k, v, t) {
     this.store[k] = v;
     if (t === undefined || t === "string") {
-      ls_set(k, v);
+      this.adapter.storeItem(k, v);
     } else if (t === "list") {
-      ls_set(k, JSON.stringify(v));
+      this.adapter.storeItem(k, JSON.stringify(v));
     } else if (t === "set") {
-      ls_set(k, JSON.stringify(v));
+      this.adapter.storeItem(k, JSON.stringify(v));
     }
   };
 
   BB.prototype.del_raw = function(k) {
     delete this.store[k];
-    ls_del(k);
+    this.adapter.removeItem(k);
   };
 
   BB.prototype.set_bbkey = function(k, v, t) {
@@ -662,9 +647,59 @@
     BankersBoxException.call(this, msg);
     this.type = "BankersBoxKeyException";
   };
-   
+
+  var BankersBoxLocalStorageAdapter = function() {
+
+    if (typeof(window) === 'undefined' || typeof(window.localStorage) === 'undefined') {
+      throw("window.localStorage is undefined, consider a different storage adapter");
+    }
+    
+    this.getItem = function(k) {
+      return window.localStorage.getItem(k);
+    };
+
+    this.storeItem = function(k, v) {
+      try {
+        window.localStorage.setItem(k, v);
+      } catch (e) {
+        if (e == QUOTA_EXCEEDED_ERR) {
+          // TODO: properly handle quota exceeded behavior
+        }
+        throw(e);
+      }
+    };
+
+    this.removeItem = function(k) {
+      window.localStorage.removeItem(k);
+    };
+
+    this.clear = function() {
+      window.localStorage.clear();
+    };
+  };
+
+  var BankersBoxNullAdapter = function() {
+
+    this.getItem = function(k) {
+    };
+
+    this.storeItem = function(k, v) {
+    };
+
+    this.removeItem = function(k) {
+    };
+
+    this.clear = function() {
+    };
+  };
+
   ctx.BankersBox = BB;
   ctx.BankersBoxException = BankersBoxException;
   ctx.BankersBoxKeyException = BankersBoxKeyException;
+  ctx.BankersBoxLocalStorageAdapter = BankersBoxLocalStorageAdapter;
+  ctx.BankersBoxNullAdapter = BankersBoxNullAdapter;
+  if (ctx !== window) {
+    ctx.mock_window = window;
+  }
   
 })(typeof(module) !== 'undefined' && module && module.exports ? module.exports : window);
