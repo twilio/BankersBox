@@ -84,7 +84,14 @@
       return ret;
     }
     if (t === undefined || t === "string") {
-      ret = this.store[k] = this.adapter.getItem(k);
+      ret = this.adapter.getItem(k);
+      try {
+	ret = JSON.parse(ret);
+	ret = ret.v;
+      } catch (e) {
+      } finally {
+	this.store[k] = ret;
+      }
     } else {
       ret = this.store[k] = JSON.parse(this.adapter.getItem(k));
     }
@@ -94,7 +101,11 @@
   BB.prototype.set_raw = function(k, v, t) {
     this.store[k] = v;
     if (t === undefined || t === "string") {
-      this.adapter.storeItem(k, v);
+      if (typeof v === "string") {
+	this.adapter.storeItem(k, v);
+      } else {
+	this.adapter.storeItem(k, JSON.stringify({v: v}));
+      }
     } else if (t === "list") {
       this.adapter.storeItem(k, JSON.stringify(v));
     } else if (t === "set") {
