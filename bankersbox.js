@@ -22,6 +22,9 @@
     window.localStorage.removeItem  = function(k) {
       delete window.localStorage.store[k];
     };
+    window.localStorage.clear = function() {
+      window.localStorage.store = {};
+    };
   }
 
 // Array Remove - By John Resig (MIT Licensed)
@@ -36,34 +39,8 @@
       console.log(m);
     }
   };
-  
-  var ls_set = function(k, v) {
-    if (window.localStorage) {
-      try {
-        window.localStorage.setItem(k, v);
-      } catch (e) {
-        if (e == QUOTA_EXCEEDED_ERR) {
-          _log("quota exceeded!");
-        }
-        throw(e);
-      }
-    }
-  };
-  
-  var ls_get = function(k) {
-    if (window.localStorage) {
-      return window.localStorage.getItem(k);
-    }
-    return null;
-  };
-  
-  var ls_del = function(k) {
-    if (window.localStorage) {
-      window.localStorage.removeItem(k);
-    }
-  };
 
-  var BB = function(db) {
+  var BB = function(db, adapter) {
 
     if (isNaN(parseInt(db))) {
       throw(new BankersBoxException("db index must be an integer"));
@@ -73,6 +50,14 @@
     var self = this;
 
     this.db = db;
+    this.adapter = adapter;
+
+    if (adapter === undefined) {
+      this.adapter = new BankersBoxLocalStorageAdapter();
+    } else if (adapter === null) {
+      this.adapter = new BankersBoxNullAdapter();
+    }
+
     this.prefix = "bb:" + db.toString() + ":";
     this.store = {};
 
@@ -674,5 +659,10 @@
   ctx.BankersBox = BB;
   ctx.BankersBoxException = BankersBoxException;
   ctx.BankersBoxKeyException = BankersBoxKeyException;
+  ctx.BankersBoxLocalStorageAdapter = BankersBoxLocalStorageAdapter;
+  ctx.BankersBoxNullAdapter = BankersBoxNullAdapter;
+  if (ctx !== window) {
+    ctx.mock_window = window;
+  }
   
 })(typeof(module) !== 'undefined' && module && module.exports ? module.exports : window);
