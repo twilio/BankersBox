@@ -14,6 +14,7 @@ exports.testNewBankersBox = ->
 
 exports.testWrongKeyTypes = ->
   bb = new BankersBox(1)
+  bb.flushdb()
   bb.set "foo", "bar"
   assert.throws (-> bb.sadd("foo", "qux")), BankersBoxKeyException
   # reset
@@ -27,6 +28,7 @@ exports.testWrongKeyTypes = ->
 
 exports.testIncrNonInt = ->
   bb = new BankersBox(1)
+  bb.flushdb()
   bb.set "foo", "bar"
   assert.throws (-> bb.incr("foo")), BankersBoxKeyException
   assert.throws (-> bb.incrby("foo", 5)), BankersBoxKeyException
@@ -35,16 +37,19 @@ exports.testIncrNonInt = ->
 
 exports.testLsetNoSuchKey = ->
   bb = new BankersBox(1)
+  bb.flushdb()
   assert.throws (-> bb.lset("foo", 0, "bar")), BankersBoxKeyException
 
 exports.testLsetIndexOutOfRange = ->
   bb = new BankersBox(1)
+  bb.flushdb()
   bb.lpush "foo", "bar"
   bb.lpush "foo", "baz"
   assert.throws (-> bb.lset("foo", 2, "qux")), BankersBoxException
 
 exports.testBBExceptionToString = ->
   bb = new BankersBox(1)
+  bb.flushdb()
   try
     bb.lset "foo", 0, "bar"
     assert.equal true, false, "test exception toString - should not reach here"
