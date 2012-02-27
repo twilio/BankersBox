@@ -4,28 +4,23 @@
     window = {};
   }
 
-  if (typeof(window.localStorage) === 'undefined') {
+  if (typeof(window.localStorage) === 'undefined' && ctx !== window) {
+    // fake out localStorage functionality, mostly for testing purposes
     window.localStorage = {};
     window.localStorage.store = {};
     window.localStorage.setItem = function(k, v) {
-      //_log("set : " + k);
-      //window.localStorage.store[k] = v;
+      window.localStorage.store[k] = v;
     };
     window.localStorage.getItem = function(k) {
-      //_log("get: " + k);
       var ret;
       ret = window.localStorage.store[k];
       if (ret === undefined) {
-        //_log("ret: null");
         return null;
       }
-      //_log("ret: " + ret);
-      //return ret;
-      return null;
+      return ret;
     };
     window.localStorage.removeItem  = function(k) {
-      //_log("remove: " + k);
-      //delete window.localStorage.store[k];
+      delete window.localStorage.store[k];
     };
   }
 
