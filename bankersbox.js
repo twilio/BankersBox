@@ -70,7 +70,7 @@
     }
 
     var exists_raw = function(k) {
-      var ret = self.store[k] || ls_get(k);
+      var ret = self.store[k] || self.adapter.getItem(k);
       return ret ? true : false;
     };
 
@@ -80,9 +80,9 @@
         return ret;
       }
       if (t === undefined || t === "string") {
-        ret = self.store[k] = ls_get(k);
+        ret = self.store[k] = self.adapter.getItem(k);
       } else {
-        ret = self.store[k] = JSON.parse(ls_get(k));
+        ret = self.store[k] = JSON.parse(self.adapter.getItem(k));
       }
       return ret;
     };
@@ -90,17 +90,17 @@
     var set_raw = function(k, v, t) {
       self.store[k] = v;
       if (t === undefined || t === "string") {
-        ls_set(k, v);
+        self.adapter.storeItem(k, v);
       } else if (t === "list") {
-        ls_set(k, JSON.stringify(v));
+        self.adapter.storeItem(k, JSON.stringify(v));
       } else if (t === "set") {
-        ls_set(k, JSON.stringify(v));
+        self.adapter.storeItem(k, JSON.stringify(v));
       }
     };
 
     var del_raw = function(k) {
       delete self.store[k];
-      ls_del(k);
+      self.adapter.removeItem(k);
     };
 
     var exists_bbkey = function(k) {
@@ -654,6 +654,51 @@
   var BankersBoxKeyException = function(msg) {
     BankersBoxException.call(this, msg);
     this.type = "BankersBoxKeyException";
+  };
+
+  var BankersBoxLocalStorageAdapter = function() {
+
+    if (typeof(window) === 'undefined' || typeof(window.localStorage) === 'undefined') {
+      throw("window.localStorage is undefined, consider a different storage adapter");
+    }
+
+    this.getItem = function(k) {
+      return window.localStorage.getItem(k);
+    };
+
+    this.storeItem = function(k, v) {
+      try {
+        window.localStorage.setItem(k, v);
+      } catch (e) {
+        if (e == QUOTA_EXCEEDED_ERR) {
+          // TODO: properly handle quota exceeded behavior
+        }
+        throw(e);
+      }
+    };
+
+    this.removeItem = function(k) {
+      window.localStorage.removeItem(k);
+    };
+
+    this.clear = function() {
+      window.localStorage.clear();
+    };
+  };
+
+  var BankersBoxNullAdapter = function() {
+
+    this.getItem = function(k) {
+    };
+
+    this.storeItem = function(k, v) {
+    };
+
+    this.removeItem = function(k) {
+    };
+
+    this.clear = function() {
+    };
   };
 
   ctx.BankersBox = BB;
