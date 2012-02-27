@@ -199,12 +199,16 @@
   /* ---- KEY ---- */
 
   BB.prototype.del = function(k) {
+    var type = this.type(k);
     this.del_bbkey(k);
     this.del_bbkeytype(k);
     /*
       TODO:
         delete other meta depending on key type
      */
+    if (type === 'set') {
+      this.del_bbkeymeta(k, "card"); 
+    }
   };
 
   BB.prototype.exists = function(k) {
