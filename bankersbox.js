@@ -4,6 +4,31 @@
     window = {};
   }
 
+  if (typeof(window.localStorage) === 'undefined') {
+    window.localStorage = {};
+    window.localStorage.store = {};
+    window.localStorage.setItem = function(k, v) {
+      //_log("set : " + k);
+      //window.localStorage.store[k] = v;
+    };
+    window.localStorage.getItem = function(k) {
+      //_log("get: " + k);
+      var ret;
+      ret = window.localStorage.store[k];
+      if (ret === undefined) {
+        //_log("ret: null");
+        return null;
+      }
+      //_log("ret: " + ret);
+      //return ret;
+      return null;
+    };
+    window.localStorage.removeItem  = function(k) {
+      //_log("remove: " + k);
+      //delete window.localStorage.store[k];
+    };
+  }
+
 // Array Remove - By John Resig (MIT Licensed)
   var arr_remove = function(array, from, to) {
     var rest = array.slice((to || from) + 1 || array.length);
@@ -12,8 +37,8 @@
   };
   
   var _log = function(m) {
-    if (window.console && window.console.log) {
-      window.console.log(m);
+    if (console && console.log) {
+      console.log(m);
     }
   };
   
@@ -55,6 +80,7 @@
     this.db = db;
     this.prefix = "bb:" + db.toString() + ":";
     this.store = {};
+    this.keystore = this.keystore = this.get_bbkey("___keys___", "set") || {};
 
     this.toString = function() {
       return "bb:" + this.db.toString();
