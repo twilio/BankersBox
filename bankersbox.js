@@ -200,12 +200,14 @@
     /* ---- KEY ---- */
 
     this.del = function(k) {
+      var type = self.type(k);
       del_bbkey(k);
       del_bbkeytype(k);
       /*
         TODO:
         delete other meta depending on key type
       */
+      del_bbkeymeta(k, "card");
     };
 
     this.exists = function(k) {
