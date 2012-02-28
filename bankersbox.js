@@ -59,7 +59,6 @@
     }
 
     this.prefix = "bb:" + db.toString() + ":";
-    this.mprefix = "bb:" + db.toString() + "m:";
     this.keyskey = "bb:" + db.toString() + "k:___keys___";
     this.store = {};
     this.keystore = this.get_raw_value(this.keyskey, "set") || {};
@@ -659,7 +658,6 @@
     }
     this.db = i;
     this.prefix = "bb:" + i.toString() + ":";
-    this.mprefix = "bb:" + i.toString() + "m:";
     this.keyskey = "bb:" + i.toString() + "k:___keys___";
     this.keystore = this.get_raw_value(this.keyskey, "set") || {};
   };
