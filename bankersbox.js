@@ -33,8 +33,8 @@
     array.length = from < 0 ? array.length + from : from;
     return array.push.apply(array, rest);
   };
-  
-  var _log = function(m) {
+
+   var _log = function(m) {
     if (console && console.log) {
       console.log(m);
     }
@@ -83,32 +83,20 @@
       if (ret !== undefined) {
         return ret;
       }
-      if (t === undefined || t === "string") {
-        ret = self.adapter.getItem(k);
-        try {
-          var obj = JSON.parse(ret);
-          if (obj.v) {
-            ret = obj.v;
-          }
-        } catch (e) {
-        } finally {
-          self.store[k] = ret;
-        }
-      } else {
-        ret = self.store[k] = JSON.parse(self.adapter.getItem(k));
+      ret = self.adapter.getItem(k);
+      var obj = ret;
+      try {
+        obj = JSON.parse(ret);
+      } catch (e) {
+      } finally {
+        self.store[k] = obj;
       }
-      return ret;
+      return obj;
     };
 
     var set_raw = function(k, v, t) {
       self.store[k] = v;
-      if (t === undefined || t === "string") {
-        self.adapter.storeItem(k, JSON.stringify({v: v}));
-      } else if (t === "list") {
-        self.adapter.storeItem(k, JSON.stringify(v));
-      } else if (t === "set") {
-        self.adapter.storeItem(k, JSON.stringify(v));
-      }
+      self.adapter.storeItem(k, JSON.stringify(v));
     };
 
     var del_raw = function(k) {
@@ -116,51 +104,81 @@
       self.adapter.removeItem(k);
     };
 
+    var get_raw_value = function(k, t) {
+      var val = get_raw(k, t);
+      if (val === null) {
+        return null;
+      }
+      return val.v;
+    };
+
+    var get_raw_meta = function(k, meta, t) {
+      var val = get_raw(k, t);
+      if (val === null) {
+        return null;
+      }
+      return val.m[meta];
+    };
+
+    var set_raw_value = function(k, v, t) {
+      var val = get_raw(k, t);
+      if (val === undefined || val === null) {
+        val = {};
+        val.m = {};
+      }
+      val.v = v;
+      if (t !== undefined) {
+        val.m.t = t;
+      }
+      set_raw(k, val, t);
+    };
+
+    var set_raw_meta = function(k, meta, v) {
+      var val = self.store[k];
+      if (val === undefined || val === null) {
+        return;
+      }
+      val.m[meta] = v;
+      set_raw(k, val);
+    };
+
     var exists_bbkey = function(k) {
       return exists_raw(self.prefix + k);
     };
 
     var set_bbkey = function(k, v, t) {
-      set_raw(self.prefix + k, v, t);
+      set_raw_value(self.prefix + k, v, t);
       if (t !== undefined) {
         set_bbkeytype(k, t);
       }
       keystore[k] = 1;
-      set_raw(self.keyskey, keystore, "set");
+      set_raw_value(self.keyskey, keystore, "set");
     };
 
     var get_bbkey = function(k, t) {
-      return get_raw(self.prefix + k, t);
+      return get_raw_value(self.prefix + k, t);
     };
 
     var del_bbkey = function(k) {
       del_raw(self.prefix + k);
       delete keystore[k];
-      set_raw(self.keyskey, keystore, "set");
+      set_raw_value(self.keyskey, keystore, "set");
     };
 
     var set_bbkeymeta = function(k, meta, v) {
-      set_raw(self.mprefix + k + ":__" + meta + "__", v);
+      set_raw_meta(self.prefix + k, meta, v);
     };
 
     var get_bbkeymeta = function(k, meta) {
-      return get_raw(self.mprefix + k + ":__" + meta + "__");
-    };
-
-    var del_bbkeymeta = function(k, meta) {
-      del_raw(self.mprefix + k + ":__" + meta + "__");
+      return get_raw_meta(self.prefix + k, meta);
     };
 
     var set_bbkeytype = function(k, v) {
-      set_bbkeymeta(k, "type", v);
+      set_bbkeymeta(k, "t", v);
     };
 
     var get_bbkeytype = function(k) {
-      return get_bbkeymeta(k, "type");
-    };
-
-    var del_bbkeytype = function(k) {
-      del_bbkeymeta(k, "type");
+      return get_bbkeymeta(k, "t");
     };
 
     var validate_key = function(k, checktype) {
@@ -213,12 +231,6 @@
     this.del = function(k) {
       var type = self.type(k);
       del_bbkey(k);
-      del_bbkeytype(k);
-      /*
-        TODO:
-        delete other meta depending on key type
-      */
-      del_bbkeymeta(k, "card");
     };
 
     this.exists = function(k) {
@@ -651,10 +663,10 @@
       self.prefix = "bb:" + i.toString() + ":";
       self.mprefix = "bb:" + i.toString() + "m:";
       self.keyskey = "bb:" + i.toString() + "k:___keys___";
-      keystore = get_raw(self.keyskey, "set") || {};
+      keystore = get_raw_value(self.keyskey, "set") || {};
     };
 
-    var keystore = get_raw(this.keyskey, "set") || {};
+    var keystore = get_raw_value(this.keyskey, "set") || {};
 
   }; /* end constructor */
 
@@ -670,8 +682,8 @@
       return this.type + ": " + msg.toString();
     };
   };
-   
-  var BankersBoxKeyException = function(msg) {
+
+   var BankersBoxKeyException = function(msg) {
     BankersBoxException.call(this, msg);
     this.type = "BankersBoxKeyException";
   };
@@ -729,5 +741,5 @@
   if (ctx !== window) {
     ctx.mock_window = window;
   }
-  
+
 })(typeof(module) !== 'undefined' && module && module.exports ? module.exports : window);
