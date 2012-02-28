@@ -62,7 +62,7 @@
     this.mprefix = "bb:" + db.toString() + "m:";
     this.keyskey = "bb:" + db.toString() + "k:___keys___";
     this.store = {};
-    this.keystore = this.get_raw(this.keyskey, "set") || {};
+    this.keystore = this.get_raw_value(this.keyskey, "set") || {};
 
     this.toString = function() {
       return "bb:" + this.db.toString();
@@ -84,32 +84,20 @@
     if (ret !== undefined) {
       return ret;
     }
-    if (t === undefined || t === "string") {
-      ret = this.adapter.getItem(k);
-      try {
-        var obj = JSON.parse(ret);
-        if (obj.v) {
-          ret = obj.v;
-        }
-      } catch (e) {
-      } finally {
-        this.store[k] = ret;
-      }
-    } else {
-      ret = this.store[k] = JSON.parse(this.adapter.getItem(k));
+    ret = this.adapter.getItem(k);
+    var obj = ret;
+    try {
+      obj = JSON.parse(ret);
+    } catch (e) {
+    } finally {
+      this.store[k] = obj;
     }
-    return ret;
+    return obj;
   };
 
   BB.prototype.set_raw = function(k, v, t) {
     this.store[k] = v;
-    if (t === undefined || t === "string") {
-      this.adapter.storeItem(k, JSON.stringify({v: v}));
-    } else if (t === "list") {
-      this.adapter.storeItem(k, JSON.stringify(v));
-    } else if (t === "set") {
-      this.adapter.storeItem(k, JSON.stringify(v));
-    }
+    this.adapter.storeItem(k, JSON.stringify(v));
   };
 
   BB.prototype.del_raw = function(k) {
@@ -117,13 +105,51 @@
     this.adapter.removeItem(k);
   };
 
+  BB.prototype.get_raw_value = function(k, t) {
+    var val = this.get_raw(k, t);
+    if (val === null) {
+      return null;
+    }
+    return val.v;
+  };
+
+  BB.prototype.get_raw_meta = function(k, meta, t) {
+    var val = this.get_raw(k, t);
+    if (val === null) {
+      return null;
+    }
+    return val.m[meta];
+  };
+
+  BB.prototype.set_raw_value = function(k, v, t) {
+    var val = this.get_raw(k, t);
+    if (val === undefined || val === null) {
+      val = {};
+    }
+    val.v = v;
+    val.m = {};
+    if (t !== undefined) {
+      val.m.t = t;
+    }
+    this.set_raw(k, val, t);
+  };
+
+  BB.prototype.set_raw_meta = function(k, meta, v) {
+    var val = this.store[k];
+    if (val === undefined || val === null) {
+      return;
+    }
+    val.m[meta] = v;
+    this.set_raw(k, val);
+  };
+
   BB.prototype.set_bbkey = function(k, v, t) {
-    this.set_raw(this.prefix + k, v, t);
+    this.set_raw_value(this.prefix + k, v, t);
     if (t !== undefined) {
       this.set_bbkeytype(k, t);
     }
     this.keystore[k] = 1;
-    this.set_raw(this.keyskey, this.keystore, "set");
+    this.set_raw_value(this.keyskey, this.keystore, "set");
   };
 
   BB.prototype.exists_bbkey = function(k) {
@@ -131,37 +157,29 @@
   };
 
   BB.prototype.get_bbkey = function(k, t) {
-    return this.get_raw(this.prefix + k, t);
+    return this.get_raw_value(this.prefix + k, t);
   };
 
   BB.prototype.del_bbkey = function(k) {
     this.del_raw(this.prefix + k);
     delete this.keystore[k];
-    this.set_raw(this.keyskey, this.keystore, "set");
+    this.set_raw_value(this.keyskey, this.keystore, "set");
   };
 
   BB.prototype.set_bbkeymeta = function(k, meta, v) {
-    this.set_raw(this.mprefix + k + ":__" + meta + "__", v);
+    this.set_raw_meta(this.prefix + k, meta, v);
   };
 
   BB.prototype.get_bbkeymeta = function(k, meta) {
-    return this.get_raw(this.mprefix + k + ":__" + meta + "__");
-  };
-
-  BB.prototype.del_bbkeymeta = function(k, meta) {
-    this.del_raw(this.mprefix + k + ":__" + meta + "__");
+    return this.get_raw_meta(this.prefix + k, meta);
   };
 
   BB.prototype.set_bbkeytype = function(k, v) {
-    this.set_bbkeymeta(k, "type", v);
+    this.set_bbkeymeta(k, "t", v);
   };
 
   BB.prototype.get_bbkeytype = function(k) {
-    return this.get_bbkeymeta(k, "type");
-  };
-
-  BB.prototype.del_bbkeytype = function(k) {
-    this.del_bbkeymeta(k, "type");
+    return this.get_bbkeymeta(k, "t");
   };
 
   BB.prototype.validate_key = function(k, checktype) {
@@ -212,14 +230,6 @@
   BB.prototype.del = function(k) {
     var type = this.type(k);
     this.del_bbkey(k);
-    this.del_bbkeytype(k);
-    /*
-      TODO:
-        delete other meta depending on key type
-     */
-    if (type === 'set') {
-      this.del_bbkeymeta(k, "card"); 
-    }
   };
 
   BB.prototype.exists = function(k) {
@@ -651,7 +661,7 @@
     this.prefix = "bb:" + i.toString() + ":";
     this.mprefix = "bb:" + i.toString() + "m:";
     this.keyskey = "bb:" + i.toString() + "k:___keys___";
-    this.keystore = this.get_raw(this.keyskey, "set") || {};
+    this.keystore = this.get_raw_value(this.keyskey, "set") || {};
   };
 
   BB.toString = function() {
