@@ -34,7 +34,7 @@
     return array.push.apply(array, rest);
   };
 
-   var _log = function(m) {
+  var _log = function(m) {
     if (console && console.log) {
       console.log(m);
     }
@@ -681,7 +681,7 @@
     };
   };
 
-   var BankersBoxKeyException = function(msg) {
+  var BankersBoxKeyException = function(msg) {
     BankersBoxException.call(this, msg);
     this.type = "BankersBoxKeyException";
   };
