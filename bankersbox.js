@@ -61,7 +61,6 @@
     }
 
     this.prefix = "bb:" + db.toString() + ":";
-    this.mprefix = "bb:" + db.toString() + "m:";
     this.keyskey = "bb:" + db.toString() + "k:___keys___";
     this.store = {};
 
@@ -661,7 +660,6 @@
       }
       self.db = i;
       self.prefix = "bb:" + i.toString() + ":";
-      self.mprefix = "bb:" + i.toString() + "m:";
       self.keyskey = "bb:" + i.toString() + "k:___keys___";
       keystore = get_raw_value(self.keyskey, "set") || {};
     };
