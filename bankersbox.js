@@ -33,7 +33,7 @@
     array.length = from < 0 ? array.length + from : from;
     return array.push.apply(array, rest);
   };
-  
+
   var _log = function(m) {
     if (console && console.log) {
       console.log(m);
@@ -124,9 +124,9 @@
     var val = this.get_raw(k, t);
     if (val === undefined || val === null) {
       val = {};
+      val.m = {};
     }
     val.v = v;
-    val.m = {};
     if (t !== undefined) {
       val.m.t = t;
     }
@@ -405,13 +405,13 @@
         ret++;
       }
     }
-    
+
     if (count > 0) {
       to_remove = to_remove.slice(0, count);
     } else if (count < 0) {
       to_remove = to_remove.slice(count);
     }
-    
+
     while(to_remove.length) {
       var el = to_remove.pop();
       arr_remove(val, el);
@@ -420,7 +420,7 @@
     if (val.length === 0) {
       this.del(k);
     } else {
-      this.set_bbkey(k, val, "list");  
+      this.set_bbkey(k, val, "list");
     }
     if (count == 0) {
       return ret;
@@ -460,7 +460,7 @@
     if (val.length === 0) {
       this.del(k);
     } else {
-      this.set_bbkey(k, val, "list");  
+      this.set_bbkey(k, val, "list");
     }
     return "OK";
   };
@@ -518,7 +518,7 @@
 
 
   /* ---- SET ---- */
-  
+
   BB.prototype.sadd = function(k, v) {
     this.validate_key(k, "sadd");
     var val = this.get_bbkey(k, "set");
@@ -683,7 +683,7 @@
     if (typeof(window) === 'undefined' || typeof(window.localStorage) === 'undefined') {
       throw("window.localStorage is undefined, consider a different storage adapter");
     }
-    
+
     this.getItem = function(k) {
       return window.localStorage.getItem(k);
     };
@@ -731,5 +731,5 @@
   if (ctx !== window) {
     ctx.mock_window = window;
   }
-  
+
 })(typeof(module) !== 'undefined' && module && module.exports ? module.exports : window);
