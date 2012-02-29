@@ -153,14 +153,17 @@ bb = new BankersBox(1, {adapter: new BankersBoxNullAdapter()});
 To create your own adapter, you must create an object which has the following three functions:
 
 * ```storeItem(key, value)```
-  * ```key - a string```
-  * ```value - a string```
+  * ```stores a value in the data-store associated with a key```
+  * ```param: key - a string```
+  * ```param: value - a string```
   * ```returns: void```
 * ```getItem(key)```
-  * ```key - a string```
+  * ```retrieves a value from the data-store for the associated key```
+  * ```param: key - a string```
   * ```returns: string - the value represented by key```
 * ```removeItem(key)```
-  * ```key - a string```
+  * ```deletes the value in the data-store associated with the key```
+  * ```param: key - a string```
   * ```returns: void```
 
 If you create your own adapters, please add appropriate unit tests
