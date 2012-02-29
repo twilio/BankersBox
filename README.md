@@ -1,6 +1,9 @@
 # BankersBox
 
-A redis-like wrapper for client side javascript localStorage
+[![Build Status](https://secure.travis-ci.org/twilio/BankersBox.png)](http://travis-ci.org/twilio/BankersBox)
+
+A redis-like wrapper for javascript data storage using localStorage as
+the default persistent data-store.
 
 ## Motivation
 
@@ -15,13 +18,18 @@ steroids. It provides many more capabilities than just simple key-value
 storage.
 
 BankersBox aims to bring redis-like APIs and behavior to the
-client-side using localStorage as the data backing mechanism. You can
-store strings, arrays, and javscript objects in BankersBox. Behind the
-scenes, BankersBox transparently uses JSON.stringify and JSON.parse to
-save and restore non-string values to their original types.
+client-side using localStorage as the default data backing
+mechanism. You can store strings, arrays, and javscript objects in
+BankersBox. Behind the scenes, BankersBox transparently uses
+JSON.stringify and JSON.parse to save and restore non-string values to
+their original types.
+
+BankersBox uses a pluggable storage adapter system so that other
+methods may be used to persist and restore data other than with
+localStorage. See the Storage Adapters section below.
 
 BankersBox is **not** a redis client. It is only meant to be a
-localStorage abstraction with redis-like APIs and behaviors for those
+storage abstraction with redis-like APIs and behaviors for those
 familiar with the redis way. If you are looking for a javascript redis
 client (e.g. for use with node.js) please turn back now.
 
@@ -65,23 +73,24 @@ bb.scard("myset"); // returns 2
 
 Keys must be strings.
 
-### Simple key-value pairs (aka STRINGS)
+### Simple key-value pairs
 
-In redis, key-value values must also be strings, but with BankersBox you can also store arrays and objects.
+In redis, key-value values must also be strings, but with BankersBox you can also store numbers, booleans, arrays, and objects.
 
 When dealing with operations that involve numeric values (incr, decr, etc) the values should be numbers (duh).
 
 ### LISTS
 
-Values stored in lists should be primative values. When storing arrays or objects in lists, the behavior is undefined.
+Values stored in lists can also be strings, numbers, booleans, arrays, and objects.
 
 ### SETS
 
-Values stored in sets should be primitive values. When storing arrays or objects in lists, the behavior is undefined.
+Values stored in sets should be strings. When storing arrays or objects in sets, the behavior is undefined.
 
 ## Implemented Functions
 
 * [KEYS](http://redis.io/commands#generic)
+  * keys
   * del
   * exists
   * type
@@ -125,3 +134,92 @@ Values stored in sets should be primitive values. When storing arrays or objects
   * none, see TODO.md
 * [CONNECTION](http://redis.io/commands#connection)
   * select
+
+## Storage Adapters
+
+By default, BankersBox will use localStorage to persist data between sessions.
+
+The main bankersbox.js file comes with two adapters built in:
+
+* BankersBoxLocalStorageAdapter - default adapter for using localStorage
+* BankersBoxNullAdapter - adapter which does not persist or restore data anywhere, good for testing
+
+To specify your desired storage adapter, pass it into the constructor in the options hash:
+
+```js
+bb = new BankersBox(1, {adapter: new BankersBoxNullAdapter()});
+```
+
+To create your own adapter, you must create an object which has the following three functions:
+
+* ```storeItem(key, value)```
+  * ```key - a string```
+  * ```value - a string```
+  * ```returns: void```
+* ```getItem(key)```
+  * ```key - a string```
+  * ```returns: string - the value represented by key```
+* ```removeItem(key)```
+  * ```key - a string```
+  * ```returns: void```
+
+If you create your own adapters, please add appropriate unit tests
+following the examples in the tests/adapter_*.test.coffee files.
+
+## API Usage
+
+BankersBox has tried to adhere as closely as possible to the Redis
+command API and return values associated with each command.
+
+You can read the full [Redis Command Documentation](http://redis.io/commands).
+
+In the cases where Redis would normally return a ```nil``` value,
+BankersBox will return the javascript ```null``` value. In the cases
+where Redis would return an error, BankersBox will throw a
+```BankersBoxException``` or ```BankersBoxKeyException``` depending on
+the situation.
+
+## Usage On Your Webpage
+
+Simply copy bankersbox.js (or bankersbox.min.js if you have minified)
+to your site's static assets folder and link to it inside your page
+source:
+
+```
+<script type="text/javascript" src="/path/to/bankersbox.js"></script>
+```
+
+## Development
+
+To develop on BankersBox, simply hack on bankersbox.js.
+
+To install the node modules needed for testing, simply:
+
+```npm install```
+
+## Testing
+
+BankersBox has a large suite of unit tests. If you add new
+functionality, please update (or add) the appropriate
+tests/bb_*.test.coffee file with new tests. You can run the unit tests
+with:
+
+```make test```
+
+## Minify
+
+BankersBox is minified using the Google Closure javascript compression tool. This is handled in the Makefile with:
+
+```make min```
+
+This will output bankersbox.min.js. To test the minified version as well, simply:
+
+```make testall```
+
+## License
+
+MIT License - see LICENSE for details
+
+## Misc
+
+Pull requests welcome, please contribute!
