@@ -192,6 +192,11 @@ source:
 <script type="text/javascript" src="/path/to/bankersbox.js"></script>
 ```
 
+BankersBox depends on using a global JSON object which must provide
+```parse``` and ```stringify``` functions. Make sure to include a JSON
+library in the page as well or BankersBox will throw an exception when
+you try to instantiate.
+
 ## Development
 
 To develop on BankersBox, simply hack on bankersbox.js.
