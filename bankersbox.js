@@ -59,6 +59,22 @@
     return array.push.apply(array, rest);
   };
 
+  var array_map;
+  if (Array.prototype.map) {
+    array_map = function(arr, fn) {
+      return arr.map(fn);
+    };
+  } else {
+    array_map = function(arr, fn) {
+      var i, len = arr.length;
+      var ret = [];
+      for (i = 0; i < len; i++) {
+        ret.push(fn(arr[i]));
+      }
+      return ret;
+    };
+  }
+
   var _log = function(m) {
     if (console && console.log) {
       console.log(m);
@@ -238,6 +254,10 @@
     tmap["smove"] = "set";
     tmap["spop"] = "set";
     tmap["srandmember"] = "set";
+    tmap["zadd"] = "zset";
+    tmap["zcard"] = "zset";
+    tmap["zcount"] = "zset";
+    tmap["zrangebyscore"] = "zset";
 
     if (tmap[checktype] === undefined) {
       throw new BankersBoxException("unknown key operation in validate_key");
@@ -654,6 +674,82 @@
       }
     }
     return ret;
+  };
+
+  /* ---- ZSET ---- */
+  BB.prototype.zset_comparator = function(a, b) {
+   return a.s - b.s;
+  };
+
+  BB.prototype.zadd = function(k, s, v) {
+    this.validate_key(k, "zadd");
+    var val = this.get_bbkey(k, "zset");
+    var ret = 1;
+    if (val === null) {
+      val = [];
+    }
+    var i, len = val.length, found = false;
+    for (i = 0; i < len; i++) {
+      if (val[i].v == v) {
+        val[i].s = s;
+        found = true;
+        ret = 0;
+        break;
+      }
+    }
+    if (!found) {
+      val.push({v: v, s: s});
+    }
+    val.sort(this.zset_comparator);
+    this.set_bbkey(k, val, "zset");
+    return ret;
+  };
+
+  BB.prototype.zcard = function(k) {
+    this.validate_key(k, "zcard");
+    val = this.get_bbkey(k, "zset");
+    if (val === null) {
+      return null;
+    }
+    return val.length;
+  };
+
+  BB.prototype.zrangebyscore = function(k, start, end, withscores) {
+    this.validate_key(k, "zrangebyscore");
+    var val = this.get_bbkey(k, "zset");
+    if (val === null) {
+      return [];
+    }
+    if (typeof start === 'string' && start.substr(0,1) === '(') {
+      start = parseInt(start.substr(1)) + 1;
+    } else if (start === "-inf") {
+      start = -Infinity;
+    }
+    if (typeof end === 'string' && end.substr(0,1) === '(') {
+      end = parseInt(end.substr(1)) - 1;
+    } else if (end === "+inf") {
+      end = Infinity;
+    }
+    var arr = [], i = 0, len = val.length;
+    for (i = 0; i < len; i++) {
+      var score = val[i].s;
+      if (score >= start && score <= end) {
+        arr.push(val[i]);
+      } else if (score > end) {
+        break;
+      }
+    }
+    if (withscores === undefined) {
+      return array_map(arr, function(a) { return a.v; });
+    } else {
+      return array_map(arr, function(a) { return {value: a.v, score: a.s};});
+    }
+  };
+
+  BB.prototype.zcount = function(k, start, end) {
+    this.validate_key(k, "zcount");
+    var val = this.zrangebyscore(k, start, end);
+    return val.length;
   };
 
   /* ---- SERVER ---- */
