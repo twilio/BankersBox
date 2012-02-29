@@ -6,14 +6,18 @@
 
 * There currenlty exists no concept of key expiry as redis has. Is this even wanted, needed?
 
-* Privatize some of the internal functions so they are not exposed to the public
+* Privatize some of the internal functions so they are not exposed to the public (done in the privatize branch)
+
+* Async version of the API so that new storage adapters could work on an async basis (e.g. AJAX posting to server storage)?
+
+* Allow SETs to store aribrary data-type values
 
 ## Unimplemented Functions ##
 
 Functions that are missing which might prove useful. All expiry-based functions are omitted since that is a larger question.
 
 * [KEYS](http://redis.io/commands#generic)
-  * keys
+  * keys (mostly implemented, only returns "*" at the moment)
   * move
   * randomkey
   * rename

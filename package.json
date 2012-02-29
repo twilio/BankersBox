@@ -1,0 +1,21 @@
+{
+  "name": "BankersBox",
+  "version": "0.8.0",
+  "author": "Chad Etzel <chetzel@twilio.com>",
+  "description": "A redis-like API wrapper for data storage in javascript, using localStorage as a default.",
+  "scripts": {
+    "test": "NODE_PATH=`pwd` expresso -s tests/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/twilio/BankersBox.git"
+  },
+  "dependencies": {
+    "coffee-script": "*",
+    "expresso": "*"
+  },
+  "license": "MIT",
+  "engine": {
+    "node": ">=0.6"
+  }
+}
