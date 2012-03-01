@@ -253,8 +253,12 @@
     /* ---- KEY ---- */
 
     this.del = function(k) {
-      var type = self.type(k);
+      var ret = 0;
+      if (get_bbkey(k)) {
+	ret = 1;
+      }
       del_bbkey(k);
+      return ret;
     };
 
     this.exists = function(k) {
