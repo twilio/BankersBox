@@ -272,8 +272,12 @@
   /* ---- KEY ---- */
 
   BB.prototype.del = function(k) {
-    var type = this.type(k);
+    var ret = 0;
+    if (this.get_bbkey(k)) {
+      ret = 1;
+    }
     this.del_bbkey(k);
+    return ret;
   };
 
   BB.prototype.exists = function(k) {
