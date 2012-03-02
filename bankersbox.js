@@ -67,32 +67,32 @@
     }
   };
 
-  var BB = function(db, opts) {
+  var BB = function(dbi, opts) {
 
-    if (isNaN(parseInt(db))) {
+    if (isNaN(parseInt(dbi))) {
       throw(new BankersBoxException("db index must be an integer"));
     }
-    db = parseInt(db);
+    dbi = parseInt(dbi);
 
     opts = opts || {};
 
     var self = this;
 
-    this.db = db;
-    this.adapter = opts.adapter;
+    var db = dbi;
+    var adapter = opts.adapter;
 
-    if (this.adapter === undefined) {
-      this.adapter = new BankersBoxLocalStorageAdapter();
-    } else if (this.adapter === null) {
-      this.adapter = new BankersBoxNullAdapter();
+    if (adapter === undefined) {
+      adapter = new BankersBoxLocalStorageAdapter();
+    } else if (adapter === null) {
+      adapter = new BankersBoxNullAdapter();
     }
 
-    this.prefix = "bb:" + db.toString() + ":";
-    this.keyskey = "bb:" + db.toString() + "k:___keys___";
-    this.store = {};
+    var prefix = "bb:" + db.toString() + ":";
+    var keyskey = "bb:" + db.toString() + "k:___keys___";
+    var store = {};
 
     this.toString = function() {
-      return "bb:" + this.db.toString();
+      return "bb:" + db.toString();
     };
 
     if (typeof(JSON) == 'undefined' && !(window.JSON && window.JSON.parse && window.JSON.stringify)) {
@@ -100,34 +100,34 @@
     }
 
     var exists_raw = function(k) {
-      var ret = self.store[k] || self.adapter.getItem(k);
+      var ret = store[k] || adapter.getItem(k);
       return ret ? true : false;
     };
 
     var get_raw = function(k, t) {
-      var ret = self.store[k];
+      var ret = store[k];
       if (ret !== undefined) {
         return ret;
       }
-      ret = self.adapter.getItem(k);
+      ret = adapter.getItem(k);
       var obj = ret;
       try {
         obj = JSON.parse(ret);
       } catch (e) {
       } finally {
-        self.store[k] = obj;
+        store[k] = obj;
       }
       return obj;
     };
 
     var set_raw = function(k, v, t) {
-      self.store[k] = v;
-      self.adapter.storeItem(k, JSON.stringify(v));
+      store[k] = v;
+      adapter.storeItem(k, JSON.stringify(v));
     };
 
     var del_raw = function(k) {
-      delete self.store[k];
-      self.adapter.removeItem(k);
+      delete store[k];
+      adapter.removeItem(k);
     };
 
     var get_raw_value = function(k, t) {
@@ -160,7 +160,7 @@
     };
 
     var set_raw_meta = function(k, meta, v) {
-      var val = self.store[k];
+      var val = store[k];
       if (val === undefined || val === null) {
         return;
       }
@@ -169,34 +169,34 @@
     };
 
     var exists_bbkey = function(k) {
-      return exists_raw(self.prefix + k);
+      return exists_raw(prefix + k);
     };
 
     var set_bbkey = function(k, v, t) {
-      set_raw_value(self.prefix + k, v, t);
+      set_raw_value(prefix + k, v, t);
       if (t !== undefined) {
         set_bbkeytype(k, t);
       }
       keystore[k] = 1;
-      set_raw_value(self.keyskey, keystore, "set");
+      set_raw_value(keyskey, keystore, "set");
     };
 
     var get_bbkey = function(k, t) {
-      return get_raw_value(self.prefix + k, t);
+      return get_raw_value(prefix + k, t);
     };
 
     var del_bbkey = function(k) {
-      del_raw(self.prefix + k);
+      del_raw(prefix + k);
       delete keystore[k];
-      set_raw_value(self.keyskey, keystore, "set");
+      set_raw_value(keyskey, keystore, "set");
     };
 
     var set_bbkeymeta = function(k, meta, v) {
-      set_raw_meta(self.prefix + k, meta, v);
+      set_raw_meta(prefix + k, meta, v);
     };
 
     var get_bbkeymeta = function(k, meta) {
-      return get_raw_meta(self.prefix + k, meta);
+      return get_raw_meta(prefix + k, meta);
     };
 
     var set_bbkeytype = function(k, v) {
@@ -681,7 +681,7 @@
       for (var i in keys) {
         self.del(keys[i]);
       }
-      del_raw(self.keyskey);
+      del_raw(keyskey);
       return "OK";
     };
 
@@ -689,13 +689,13 @@
       if (isNaN(parseInt(i))) {
         throw(new BankersBoxException("db index must be an integer"));
       }
-      self.db = i;
-      self.prefix = "bb:" + i.toString() + ":";
-      self.keyskey = "bb:" + i.toString() + "k:___keys___";
-      keystore = get_raw_value(self.keyskey, "set") || {};
+      db = i;
+      prefix = "bb:" + i.toString() + ":";
+      keyskey = "bb:" + i.toString() + "k:___keys___";
+      keystore = get_raw_value(keyskey, "set") || {};
     };
 
-    var keystore = get_raw_value(this.keyskey, "set") || {};
+    var keystore = get_raw_value(keyskey, "set") || {};
 
   }; /* end constructor */
 
