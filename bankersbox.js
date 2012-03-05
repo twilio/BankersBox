@@ -69,10 +69,10 @@
 
   var BB = function(dbi, opts) {
 
-    if (isNaN(parseInt(dbi))) {
+    if (isNaN(parseInt(dbi, 10))) {
       throw(new BankersBoxException("db index must be an integer"));
     }
-    dbi = parseInt(dbi);
+    dbi = parseInt(dbi, 10);
 
     opts = opts || {};
 
@@ -313,7 +313,7 @@
       validate_key(k, "incrby");
       var val = self.get(k);
       if (val !== null) {
-        if (isNaN(parseInt(val))) {
+        if (isNaN(parseInt(val, 10))) {
           throw(new BankersBoxKeyException("key is not parsable as an integer"));
         }
         self.set(k, val + i);
@@ -560,7 +560,7 @@
         val = {};
         scard = 0;
       } else {
-        scard = parseInt(get_bbkeymeta(k, "card"));
+        scard = parseInt(get_bbkeymeta(k, "card"), 10);
       }
       if (val[v] !== 1) {
         ret = 1;
@@ -575,7 +575,7 @@
     this.scard = function(k) {
       validate_key(k, "scard");
       if (self.exists(k)) {
-        return parseInt(get_bbkeymeta(k, "card"));
+        return parseInt(get_bbkeymeta(k, "card"), 10);
       };
       return 0;
     };
@@ -652,7 +652,7 @@
       if (val[v] === 1) {
         ret = 1;
         delete val[v];
-        var scard = parseInt(get_bbkeymeta(k, "card")) - 1;
+        var scard = parseInt(get_bbkeymeta(k, "card"), 10) - 1;
         if (scard === 0) {
           self.del(k);
         } else {
@@ -709,12 +709,12 @@
 	return [];
       }
       if (typeof start === 'string' && start.substr(0,1) === '(') {
-	start = parseInt(start.substr(1)) + 1;
+	start = parseInt(start.substr(1), 10) + 1;
       } else if (start === "-inf") {
 	start = -Infinity;
       }
       if (typeof end === 'string' && end.substr(0,1) === '(') {
-	end = parseInt(end.substr(1)) - 1;
+	end = parseInt(end.substr(1), 10) - 1;
       } else if (end === "+inf") {
 	end = Infinity;
       }
@@ -763,7 +763,7 @@
     };
 
     this.select = function(i) {
-      if (isNaN(parseInt(i))) {
+      if (isNaN(parseInt(i, 10))) {
         throw(new BankersBoxException("db index must be an integer"));
       }
       db = i;
