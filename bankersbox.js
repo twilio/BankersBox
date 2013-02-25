@@ -132,7 +132,7 @@
 
     var get_raw_value = function(k, t) {
       var val = get_raw(k, t);
-      if (val === null) {
+      if (val === null  || 'undefined' === typeof val) {
         return null;
       }
       return val.v;
@@ -140,7 +140,7 @@
 
     var get_raw_meta = function(k, meta, t) {
       var val = get_raw(k, t);
-      if (val === null) {
+      if (val === null || 'undefined' === typeof val) {
         return null;
       }
       return val.m[meta];
