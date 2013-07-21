@@ -763,11 +763,55 @@
     };
   };
 
+  var BankersBoxFileSystemAdapter = function(filename) {
+    if (!(typeof(module) !== 'undefined' && module && module.exports)) {
+      throw("this does not appear to be a server context, consider a different storage adapter");
+    }
+    var store = {};
+    var fs = require('fs');
+
+    var init = function() {
+      if (fs.existsSync(filename)) {
+        var data = fs.readFileSync(filename, {encoding: 'utf8'});
+        if (data) {
+          store = JSON.parse(data);
+        }
+      }
+    };
+
+    var persist = function() {
+      fs.writeFileSync(filename, JSON.stringify(store), {encoding: 'utf8'});
+    };
+
+    init();
+
+    this.getItem = function(k) {
+      return store[k] || null;
+    };
+
+    this.storeItem = function(k, v) {
+      store[k] = v;
+      persist();
+    };
+
+    this.removeItem = function(k) {
+      delete store[k];
+      persist();
+    };
+
+    this.clear = function() {
+      store = {};
+      fs.unlinkSync(filename);
+    };
+  };
+
   ctx.BankersBox = BB;
   ctx.BankersBoxException = BankersBoxException;
   ctx.BankersBoxKeyException = BankersBoxKeyException;
   ctx.BankersBoxLocalStorageAdapter = BankersBoxLocalStorageAdapter;
   ctx.BankersBoxNullAdapter = BankersBoxNullAdapter;
+  ctx.BankersBoxFileSystemAdapter = BankersBoxFileSystemAdapter;
+
   if (ctx !== window) {
     ctx.mock_window = window;
   }
