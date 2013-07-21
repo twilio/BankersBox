@@ -2,7 +2,7 @@
  * @license MIT License
  *
  * Copyright (c) 2012 Twilio Inc.
- * 
+ *
  * Authors: Chad Etzel <chetzel@twilio.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -750,6 +750,7 @@
   var BankersBoxNullAdapter = function() {
 
     this.getItem = function(k) {
+      return null;
     };
 
     this.storeItem = function(k, v) {
