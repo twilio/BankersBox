@@ -12,7 +12,7 @@ exports.testSetAndGet = ->
   bb = new BankersBox(1)
   bb.flushdb()
   bb.set "foo", "bar"
-  assert.equal bb.get("foo"), "bar", "test set"
+  assert.equal bb.get("foo"), "bar", "test get"
 
 exports.testGetNull = ->
   bb = new BankersBox(1)
