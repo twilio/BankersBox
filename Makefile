@@ -16,14 +16,16 @@ min: bankersbox.min.js
 
 test:
 	@echo "Testing bankersbox.js:"
-	@NODE_PATH=`pwd` expresso -s tests/*
+	@NODE_PATH=`pwd` ./node_modules/.bin/expresso -s tests/*.test.coffee
+	@NODE_PATH=`pwd` ./node_modules/.bin/expresso -s tests/*.test_special.coffee
 
 testmin: min
 	@mkdir -p src-min-tmp
 	@rm -f src-min-tmp/bankersbox.js
 	@ln -s ../bankersbox.min.js src-min-tmp/bankersbox.js
 	@echo "Testing MINIFIED file:"
-	@NODE_PATH=`pwd`/src-min-tmp expresso -s tests/*
+	@NODE_PATH=`pwd`/src-min-tmp ./node_modules/.bin/expresso -s tests/*
+	@NODE_PATH=`pwd`/src-min-tmp ./node_modules/.bin/expresso -s tests/*.test_special.coffee
 
 testall: test testmin
 
@@ -32,7 +34,7 @@ coverage:
 	rm -f src-tmp/bankersbox.js
 	ln -s ../bankersbox.js src-tmp/bankersbox.js
 	rm -rf src-cov
-	node-jscoverage src-tmp src-cov
-	NODE_PATH=`pwd`/src-cov expresso -s tests/*
+	./node_modules/.bin/node-jscoverage src-tmp src-cov
+	NODE_PATH=`pwd`/src-cov ./node_modules/.bin/expresso -s tests/*.test.coffee
 
 .PHONY: all clean min test testmin testall coverage

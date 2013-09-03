@@ -31,6 +31,14 @@
     window = {};
   }
 
+  try {
+    // when cookies are disabled accessing `window.localStorage` throws ERR 18
+    window.localStorage;
+  }
+  catch (e) {
+    return;
+  }
+
   if (typeof(window.localStorage) === 'undefined' && ctx !== window) {
     // fake out localStorage functionality, mostly for testing purposes
     window.localStorage = {};
